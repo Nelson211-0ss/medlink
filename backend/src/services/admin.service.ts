@@ -18,13 +18,14 @@ export class AdminService {
 
   async stats() {
     const byRole = await this.users.countByRole();
-    const [verifiedPros, orgCount, activeJobs, revenue] = await Promise.all([
+    const [verifiedPros, orgCount, activeJobs, revenue, totalApplications] = await Promise.all([
       this.professionals.countVerified(),
       this.organizations.count(),
       this.jobs.countActive(),
       query<{ sum: string }>(
         `SELECT COALESCE(COUNT(*) * 0, 0)::text AS sum FROM subscriptions WHERE plan <> 'free'`,
       ),
+      query<{ count: string }>(`SELECT COUNT(*)::text AS count FROM applications`),
     ]);
     const totalUsers = Object.values(byRole).reduce((a, b) => a + b, 0);
     const { rows: paidRows } = await query<{ count: string }>(
@@ -39,6 +40,8 @@ export class AdminService {
       activeJobs,
       paidSubscriptions: paid,
       estimatedMRR: paid * 19, // simplified
+      totalApplications: Number(totalApplications.rows[0]?.count ?? 0),
+      unverifiedProfessionals: Math.max((byRole.professional ?? 0) - verifiedPros, 0),
       _revenuePlaceholder: revenue.rows[0]?.sum,
     };
   }

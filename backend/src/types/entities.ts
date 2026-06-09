@@ -6,6 +6,7 @@ export interface UserRow {
   last_name: string;
   email: string;
   phone: string | null;
+  contact_email: string | null;
   password_hash: string;
   role: Role;
   avatar: string | null;

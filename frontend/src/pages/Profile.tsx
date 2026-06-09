@@ -66,6 +66,8 @@ export default function Profile() {
         city: form.city,
         license_number: form.license_number,
         skills: typeof form.skills === 'string' ? (form.skills as string).split(',').map((s) => s.trim()) : form.skills,
+        phone: (form.phone as string) || null,
+        contactEmail: (form.contact_email as string) || null,
       });
     }
   };
@@ -120,6 +122,20 @@ export default function Profile() {
               </>
             ) : (
               <>
+                <Field
+                  label="Phone number"
+                  type="tel"
+                  value={form.phone}
+                  onChange={(v) => set('phone', v)}
+                  hint="Visible to organizations when they view your profile."
+                />
+                <Field
+                  label="Contact email"
+                  type="email"
+                  value={form.contact_email}
+                  onChange={(v) => set('contact_email', v)}
+                  hint={`Organizations can use this to reach you.${form.email ? ` Defaults to ${form.email as string}.` : ''}`}
+                />
                 <div className="space-y-1.5">
                   <Label>Profession</Label>
                   <Select value={(form.profession as string) ?? ''} onChange={(e) => set('profession', e.target.value)}>
@@ -178,17 +194,20 @@ function Field({
   onChange,
   type = 'text',
   full,
+  hint,
 }: {
   label: string;
   value: unknown;
   onChange: (v: string) => void;
   type?: string;
   full?: boolean;
+  hint?: string;
 }) {
   return (
     <div className={`space-y-1.5 ${full ? 'sm:col-span-2' : ''}`}>
       <Label>{label}</Label>
       <Input type={type} value={(value as string) ?? ''} onChange={(e) => onChange(e.target.value)} />
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }

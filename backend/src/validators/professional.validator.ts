@@ -16,6 +16,8 @@ export const updateProfessionalSchema = z.object({
   skills: z.array(z.string()).max(50).optional(),
   cv_url: z.string().url().optional(),
   open_to_offers: z.boolean().optional(),
+  phone: z.string().max(30).optional().nullable(),
+  contactEmail: z.union([z.string().email().max(320), z.literal('')]).optional().nullable(),
 });
 
 export const availabilitySchema = z.object({

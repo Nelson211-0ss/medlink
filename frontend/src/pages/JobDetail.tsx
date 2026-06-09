@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Briefcase, MapPin, Users } from 'lucide-react';
+import { Briefcase, Building2, Calendar, MapPin, Users } from 'lucide-react';
 import { api, ApiEnvelope, apiError } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,6 +26,19 @@ interface Job {
   salary_max?: number;
   currency?: string;
   experience_min?: number;
+  status?: string;
+  expires_at?: string | null;
+  organization_name?: string;
+  organization_type?: string | null;
+}
+
+function formatDeadline(date?: string | null) {
+  if (!date) return null;
+  return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function applicationsClosed(job: Job) {
+  return job.status !== 'open' || (!!job.expires_at && new Date(job.expires_at) < new Date());
 }
 
 export default function JobDetail() {
@@ -50,12 +63,23 @@ export default function JobDetail() {
 
   if (isLoading || !job) return <PageLoader />;
 
+  const closed = applicationsClosed(job);
+
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
         <Card>
           <CardContent className="space-y-4 p-6">
             <h1 className="text-2xl font-bold">{job.title}</h1>
+            {job.organization_name && user.role !== 'organization' && (
+              <p className="inline-flex items-center gap-1.5 text-base font-medium text-primary">
+                <Building2 className="h-5 w-5" />
+                {job.organization_name}
+                {job.organization_type && (
+                  <span className="font-normal text-muted-foreground">· {titleCase(job.organization_type)}</span>
+                )}
+              </p>
+            )}
             <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
               {job.profession && (
                 <span className="inline-flex items-center gap-1">
@@ -68,6 +92,12 @@ export default function JobDetail() {
                 </span>
               )}
               {job.employment_type && <Badge variant="outline">{titleCase(job.employment_type)}</Badge>}
+              {job.expires_at && (
+                <span className="inline-flex items-center gap-1">
+                  <Calendar className="h-4 w-4" />
+                  {closed ? 'Applications closed' : `Apply by ${formatDeadline(job.expires_at)}`}
+                </span>
+              )}
             </div>
             <div className="text-lg font-semibold">
               {formatCurrency(job.salary_min, job.currency)} – {formatCurrency(job.salary_max, job.currency)}
@@ -97,15 +127,24 @@ export default function JobDetail() {
               <CardTitle>Apply for this role</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Textarea
-                placeholder="Write a short cover letter..."
-                value={coverLetter}
-                onChange={(e) => setCoverLetter(e.target.value)}
-                rows={6}
-              />
-              <Button className="w-full" onClick={() => apply.mutate()} disabled={apply.isPending}>
-                {apply.isPending && <Spinner />} Submit application
-              </Button>
+              {closed ? (
+                <p className="text-sm text-muted-foreground">
+                  This job is no longer accepting applications
+                  {job.expires_at ? ` (closed ${formatDeadline(job.expires_at)})` : ''}.
+                </p>
+              ) : (
+                <>
+                  <Textarea
+                    placeholder="Write a short cover letter..."
+                    value={coverLetter}
+                    onChange={(e) => setCoverLetter(e.target.value)}
+                    rows={6}
+                  />
+                  <Button className="w-full" onClick={() => apply.mutate()} disabled={apply.isPending}>
+                    {apply.isPending && <Spinner />} Submit application
+                  </Button>
+                </>
+              )}
             </CardContent>
           </Card>
         )}

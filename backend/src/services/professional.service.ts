@@ -39,6 +39,9 @@ export class ProfessionalService {
       first_name: user?.first_name,
       last_name: user?.last_name,
       avatar: user ? await this.files.resolveUrl(user.avatar) : null,
+      email: user?.email ?? null,
+      phone: user?.phone ?? null,
+      contact_email: user?.contact_email ?? null,
     };
   }
 
@@ -58,7 +61,8 @@ export class ProfessionalService {
         firstName: user.first_name,
         lastName: user.last_name,
         avatar: await this.files.resolveUrl(user.avatar),
-        email: user.email,
+        email: user.contact_email || user.email,
+        phone: user.phone ?? null,
       },
       education: education.rows,
       certifications: certifications.rows,
@@ -70,7 +74,15 @@ export class ProfessionalService {
   async updateProfile(userId: string, data: Record<string, unknown>) {
     const profile = await this.professionals.findByUserId(userId);
     if (!profile) throw new NotFoundError('Professional profile not found');
-    const updated = (await this.professionals.update(profile.id, data)) as ProfessionalRow;
+
+    const { phone, contactEmail, contact_email, ...profileData } = data;
+    const contact: { phone?: string | null; contact_email?: string | null } = {};
+    if (phone !== undefined) contact.phone = (phone as string) || null;
+    if (contactEmail !== undefined) contact.contact_email = (contactEmail as string) || null;
+    if (contact_email !== undefined) contact.contact_email = (contact_email as string) || null;
+    if (Object.keys(contact).length) await this.users.updateContact(userId, contact);
+
+    const updated = (await this.professionals.update(profile.id, profileData)) as ProfessionalRow;
     const completion = this.computeCompletion(updated);
     await this.professionals.updateCompletion(updated.id, completion);
     updated.profile_completion = completion;

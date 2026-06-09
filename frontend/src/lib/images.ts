@@ -24,7 +24,22 @@ export const avatars = {
 
 /** Hero slider — transparent PNG healthcare professional cutouts */
 export const nurseSlides = [
-  { src: '/nurses/44989995_9110036.png', alt: 'Male physician pointing toward opportunity' },
-  { src: '/nurses/44990013_9109844.png', alt: 'Female clinician in protective gear with arms crossed' },
-  { src: '/nurses/44990018_9109683.png', alt: 'Female doctor smiling with arms crossed' },
+  {
+    src: '/nurses/44989995_9110036.png',
+    alt: 'Male physician pointing toward opportunity',
+    scale: 1.38,
+    offsetX: -14,
+  },
+  {
+    src: '/nurses/44990013_9109844.png',
+    alt: 'Female clinician in protective gear with arms crossed',
+    scale: 1.12,
+    offsetX: 0,
+  },
+  {
+    src: '/nurses/44990018_9109683.png',
+    alt: 'Female doctor smiling with arms crossed',
+    scale: 1.18,
+    offsetX: 0,
+  },
 ] as const;

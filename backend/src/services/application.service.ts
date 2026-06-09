@@ -26,6 +26,9 @@ export class ApplicationService {
     if (!profile) throw new ForbiddenError('Professional profile required');
     const job = await this.jobs.findById(jobId);
     if (!job || job.status !== 'open') throw new NotFoundError('Job not available');
+    if (job.expires_at && new Date(job.expires_at) < new Date()) {
+      throw new BadRequestError('Applications for this job have closed');
+    }
 
     const existing = await this.applications.findByJobAndProfessional(jobId, profile.id);
     if (existing) throw new BadRequestError('You have already applied to this job');

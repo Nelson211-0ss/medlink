@@ -2,6 +2,7 @@ import { JobRepository } from '../repositories/job.repository';
 import { OrganizationRepository } from '../repositories/organization.repository';
 import { SearchService } from './search.service';
 import { ForbiddenError, NotFoundError } from '../utils/errors';
+import { ROLES } from '../utils/constants';
 import { PaginationParams } from '../utils/pagination';
 import { JobRow } from '../types/entities';
 
@@ -12,29 +13,62 @@ export class JobService {
     private search: SearchService,
   ) {}
 
+  private normalizeJobPayload(data: Record<string, unknown>) {
+    const payload = { ...data };
+    if (payload.expires_at === '' || payload.expires_at === null) {
+      payload.expires_at = null;
+    } else if (typeof payload.expires_at === 'string') {
+      const raw = payload.expires_at;
+      const endOfDay = /^\d{4}-\d{2}-\d{2}$/.test(raw)
+        ? new Date(`${raw}T23:59:59.999Z`)
+        : new Date(raw);
+      if (!Number.isNaN(endOfDay.getTime())) {
+        payload.expires_at = endOfDay.toISOString();
+      }
+    }
+    return payload;
+  }
+
   async create(userId: string, data: Record<string, unknown>) {
     const org = await this.organizations.findByUserId(userId);
     if (!org) throw new ForbiddenError('Only organizations can post jobs');
-    const job = await this.jobs.insert({ ...data, organization_id: org.id });
+    const job = await this.jobs.insert({
+      ...this.normalizeJobPayload(data),
+      organization_id: org.id,
+    });
     await this.search.indexJob(job, org.organization_name);
     return job;
   }
 
-  async list(p: PaginationParams, filters: { profession?: string; country?: string; q?: string }) {
+  async list(
+    p: PaginationParams,
+    filters: { profession?: string; country?: string; q?: string },
+    userId?: string,
+    role?: string,
+  ) {
+    if (role === ROLES.ORGANIZATION && userId) {
+      const org = await this.organizations.findByUserId(userId);
+      if (!org) throw new ForbiddenError('Organization profile required');
+      const rows = await this.jobs.listByOrganization(org.id, filters);
+      return { rows, total: rows.length };
+    }
     return this.jobs.listOpen(p, filters);
   }
 
-  async getById(id: string, opts: { incrementViews?: boolean } = {}): Promise<JobRow> {
-    const job = await this.jobs.findById(id);
+  async getById(id: string, opts: { incrementViews?: boolean } = {}) {
+    const job = await this.jobs.findByIdWithOrganization(id);
     if (!job) throw new NotFoundError('Job not found');
     if (opts.incrementViews) await this.jobs.incrementViews(id);
     return job;
   }
 
-  async listForOrganization(userId: string) {
+  async listForOrganization(
+    userId: string,
+    filters: { profession?: string; country?: string; q?: string } = {},
+  ) {
     const org = await this.organizations.findByUserId(userId);
     if (!org) throw new ForbiddenError('Organization profile required');
-    return this.jobs.listByOrganization(org.id);
+    return this.jobs.listByOrganization(org.id, filters);
   }
 
   private async assertOwner(userId: string, jobId: string): Promise<JobRow> {
@@ -49,7 +83,7 @@ export class JobService {
 
   async update(userId: string, jobId: string, data: Record<string, unknown>) {
     await this.assertOwner(userId, jobId);
-    const updated = (await this.jobs.update(jobId, data)) as JobRow;
+    const updated = (await this.jobs.update(jobId, this.normalizeJobPayload(data))) as JobRow;
     const org = await this.organizations.findById(updated.organization_id);
     if (org) await this.search.indexJob(updated, org.organization_name);
     return updated;

@@ -29,10 +29,21 @@ export class DashboardService {
       query<{ count: string }>(`SELECT COUNT(*)::text AS count FROM invitations WHERE professional_id = $1 AND status = 'pending'`, [profile.id]),
     ]);
 
+    const applicationPipeline = APPLICATION_STAGES.reduce<Record<string, number>>((acc, stage) => {
+      acc[stage] = apps.filter((a) => a.stage === stage).length;
+      return acc;
+    }, {});
+
+    const activeApplications = apps.filter((a) => !['hired', 'rejected'].includes(a.stage)).length;
+    const offersReceived = apps.filter((a) => ['offer', 'hired'].includes(a.stage)).length;
+
     return {
       profileCompletion: profile.profile_completion,
       verificationStatus: profile.verification_status,
       applications: apps.length,
+      applicationPipeline,
+      activeApplications,
+      offersReceived,
       recommendedJobs: recommended,
       savedJobs: Number(savedJobs.rows[0]?.count ?? 0),
       invitations: Number(invitations.rows[0]?.count ?? 0),
@@ -44,8 +55,9 @@ export class DashboardService {
     const org = await this.organizations.findByUserId(userId);
     if (!org) throw new ForbiddenError('Organization profile required');
 
-    const [jobs, applicationsCount, profileViews, matchCount, pipelineRaw] = await Promise.all([
+    const [jobs, allJobs, applicationsCount, profileViews, matchCount, pipelineRaw] = await Promise.all([
       query<{ count: string }>(`SELECT COUNT(*)::text AS count FROM jobs WHERE organization_id = $1 AND status = 'open'`, [org.id]),
+      query<{ count: string }>(`SELECT COUNT(*)::text AS count FROM jobs WHERE organization_id = $1`, [org.id]),
       query<{ count: string }>(
         `SELECT COUNT(*)::text AS count FROM applications a JOIN jobs j ON j.id = a.job_id WHERE j.organization_id = $1`,
         [org.id],
@@ -60,10 +72,17 @@ export class DashboardService {
       return acc;
     }, {});
 
+    const openJobs = Number(jobs.rows[0]?.count ?? 0);
+    const totalJobsPosted = Number(allJobs.rows[0]?.count ?? 0);
+    const applications = Number(applicationsCount.rows[0]?.count ?? 0);
+
     return {
       verificationStatus: org.verification_status,
-      totalJobs: Number(jobs.rows[0]?.count ?? 0),
-      applications: Number(applicationsCount.rows[0]?.count ?? 0),
+      totalJobs: openJobs,
+      totalJobsPosted,
+      closedJobs: Math.max(totalJobsPosted - openJobs, 0),
+      applications,
+      avgApplicationsPerJob: totalJobsPosted > 0 ? Math.round(applications / totalJobsPosted) : 0,
       candidateMatches: matchCount,
       profileViews: Number(profileViews.rows[0]?.sum ?? 0),
       pipeline,

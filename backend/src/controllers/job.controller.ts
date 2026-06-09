@@ -12,11 +12,12 @@ export const jobController = {
 
   list: asyncHandler(async (req, res) => {
     const p = getPagination(req.query);
-    const { rows, total } = await jobService.list(p, {
+    const filters = {
       profession: req.query.profession as string,
       country: req.query.country as string,
       q: req.query.q as string,
-    });
+    };
+    const { rows, total } = await jobService.list(p, filters, req.user?.id, req.user?.role);
     return paginated(res, rows, buildMeta(total, p.page, p.limit));
   }),
 
@@ -25,7 +26,13 @@ export const jobController = {
   }),
 
   myJobs: asyncHandler(async (req, res) => {
-    return ok(res, await jobService.listForOrganization(req.user!.id));
+    return ok(
+      res,
+      await jobService.listForOrganization(req.user!.id, {
+        profession: req.query.profession as string,
+        q: req.query.q as string,
+      }),
+    );
   }),
 
   update: asyncHandler(async (req, res) => {

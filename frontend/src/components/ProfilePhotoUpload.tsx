@@ -65,10 +65,10 @@ export function ProfilePhotoUpload({
           src={preview}
           first={firstName}
           last={lastName}
-          className="h-24 w-24 text-xl ring-2 ring-primary/20"
+          className="h-24 w-24 rounded-xl text-xl ring-2 ring-primary/20"
         />
         {uploading && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-background/70">
+          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-background/70">
             <Spinner className="h-6 w-6" />
           </div>
         )}

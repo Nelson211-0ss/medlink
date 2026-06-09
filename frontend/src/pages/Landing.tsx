@@ -82,20 +82,20 @@ export default function Landing() {
 
       {/* Hero */}
       <section className="gradient-hero relative overflow-x-hidden">
-        <div className="container relative z-10 grid items-center gap-8 py-12 lg:grid-cols-2 lg:items-stretch lg:gap-10 lg:py-14 xl:py-16">
-          <div className="animate-slide-up">
-            <h1 className="text-4xl font-extrabold leading-[1.12] tracking-tight text-foreground sm:text-5xl lg:text-[3.25rem]">
-              Connecting
-              <br />
-              Healthcare <span className="text-primary">Talent</span> With
-              <br />
+        <div className="container relative z-10 grid items-center gap-10 py-14 sm:py-16 lg:grid-cols-2 lg:gap-12 lg:py-16 xl:py-20">
+          <div className="animate-slide-up flex flex-col justify-center pt-8 sm:pt-10 lg:py-12 lg:pr-6 xl:pr-10">
+            <h1 className="flex flex-col gap-1 text-3xl font-extrabold tracking-tight text-foreground sm:gap-1.5 sm:text-4xl lg:text-[2.85rem]">
+              <span>Connecting</span>
+              <span>
+                Healthcare <span className="text-primary">Talent</span> With
+              </span>
               <span className="text-primary">Opportunity</span>
             </h1>
-            <p className="mt-5 max-w-lg text-base text-muted-foreground sm:text-lg">
+            <p className="mt-4 max-w-md text-base text-muted-foreground sm:text-lg">
               MediLink brings smart matching to healthcare recruitment across all 50 states.
               Find your next role or your next hire.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap gap-3">
               <Button size="lg" asChild>
                 <Link to="/register">
                   Join as professional <ArrowRight className="h-4 w-4" />
@@ -105,7 +105,7 @@ export default function Landing() {
                 <Link to="/register">Hire talent</Link>
               </Button>
             </div>
-            <div className="mt-8 flex flex-wrap gap-x-8 gap-y-2 text-sm text-muted-foreground">
+            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
               {['Free to start', 'Verified state licenses', 'No spam'].map((t) => (
                 <span key={t} className="inline-flex items-center gap-1.5">
                   <Check className="h-4 w-4 text-primary" /> {t}
@@ -115,7 +115,7 @@ export default function Landing() {
           </div>
 
           <div
-            className="animate-slide-up flex min-h-[min(58vh,560px)] items-end justify-center overflow-visible sm:min-h-[min(62vh,620px)] lg:min-h-0 lg:flex-1"
+            className="animate-slide-up flex min-h-[min(58vh,560px)] items-center justify-center overflow-visible sm:min-h-[min(62vh,620px)] lg:min-h-[640px]"
             style={{ animationDelay: '0.15s' }}
           >
             <NurseSlider className="h-full w-full" />

@@ -19,30 +19,28 @@ export function NurseSlider({ className }: { className?: string }) {
         className,
       )}
     >
-      {nurseSlides.map((slide, i) => (
-        <div
-          key={slide.src}
-          className={cn(
-            'absolute inset-0 flex items-center justify-center pb-10 transition-all duration-700 ease-out sm:pb-12',
-            i === index
-              ? 'z-10 scale-100 opacity-100'
-              : 'pointer-events-none z-0 scale-90 opacity-0',
-          )}
-          aria-hidden={i !== index}
-        >
-          <div className={cn('nurse-circle-frame', i === index && 'nurse-circle-float')}>
-            <div className="nurse-circle-inner">
-              <img
-                src={slide.src}
-                alt={slide.alt}
-                className="h-[108%] w-auto max-w-[115%] object-contain object-bottom"
-                loading={i === 0 ? 'eager' : 'lazy'}
-                draggable={false}
-              />
-            </div>
-          </div>
+      <div className="nurse-circle-frame nurse-circle-float">
+        <div className="nurse-circle-inner">
+          {nurseSlides.map((slide, i) => (
+            <img
+              key={slide.src}
+              src={slide.src}
+              alt={slide.alt}
+              className={cn(
+                'nurse-circle-img absolute bottom-0 left-1/2 transition-opacity duration-700',
+                i === index ? 'opacity-100' : 'pointer-events-none opacity-0',
+              )}
+              style={{
+                transform: `translateX(calc(-50% + ${slide.offsetX}%)) scale(${slide.scale})`,
+                transformOrigin: 'bottom center',
+              }}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              draggable={false}
+              aria-hidden={i !== index}
+            />
+          ))}
         </div>
-      ))}
+      </div>
 
       <div className="absolute bottom-0 left-1/2 z-20 flex -translate-x-1/2 gap-2">
         {nurseSlides.map((slide, i) => (

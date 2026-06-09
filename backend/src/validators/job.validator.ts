@@ -18,6 +18,8 @@ export const createJobSchema = z.object({
   experience_min: z.number().int().nonnegative().optional(),
   required_licenses: z.array(z.string()).optional(),
   status: z.enum(JOB_STATUS).optional(),
+  /** Application closing date (ISO date or datetime string) */
+  expires_at: z.string().max(40).optional().nullable(),
 });
 
 export const updateJobSchema = createJobSchema.partial();

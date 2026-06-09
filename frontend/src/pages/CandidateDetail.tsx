@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, MapPin, Mail, Briefcase } from 'lucide-react';
+import { ArrowLeft, MapPin, Mail, Phone, Briefcase } from 'lucide-react';
 import { api, ApiEnvelope } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +26,7 @@ interface Profile {
     firstName: string;
     lastName: string;
     email: string;
+    phone?: string | null;
     avatar?: string | null;
   };
   education?: { institution: string; degree?: string; field_of_study?: string }[];
@@ -85,6 +86,14 @@ export default function CandidateDetail() {
                 <Mail className="h-4 w-4 text-primary" />
                 <a href={`mailto:${data.user.email}`} className="text-primary hover:underline">
                   {data.user.email}
+                </a>
+              </p>
+            )}
+            {data.user?.phone && (
+              <p className="inline-flex items-center gap-1.5 text-sm">
+                <Phone className="h-4 w-4 text-primary" />
+                <a href={`tel:${data.user.phone}`} className="text-primary hover:underline">
+                  {data.user.phone}
                 </a>
               </p>
             )}
