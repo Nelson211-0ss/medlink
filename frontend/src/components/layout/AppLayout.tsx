@@ -33,7 +33,7 @@ interface NavItem {
 const NAV: NavItem[] = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/jobs', label: 'Jobs', icon: Briefcase },
-  { to: '/candidates', label: 'Find Talent', icon: Search, roles: ['organization'] },
+  { to: '/candidates', label: 'Find Talent', icon: Search, roles: ['organization', 'admin'] },
   { to: '/applications', label: 'Applications', icon: FileText },
   { to: '/messages', label: 'Messages', icon: MessageSquare },
   { to: '/profile', label: 'Profile', icon: User },
@@ -60,7 +60,7 @@ export function AppLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative z-10 min-h-screen bg-background">
       {/* Sidebar */}
       <aside
         className={cn(

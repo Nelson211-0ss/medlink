@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
+import { FlyingElements } from './components/FlyingElements';
 import { PageLoader } from './components/ui/misc';
 
 const Landing = lazy(() => import('./pages/Landing'));
@@ -12,6 +13,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Jobs = lazy(() => import('./pages/Jobs'));
 const JobDetail = lazy(() => import('./pages/JobDetail'));
 const CandidateSearch = lazy(() => import('./pages/CandidateSearch'));
+const CandidateDetail = lazy(() => import('./pages/CandidateDetail'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Messages = lazy(() => import('./pages/Messages'));
 const Applications = lazy(() => import('./pages/Applications'));
@@ -22,6 +24,7 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 export default function App() {
   return (
     <Suspense fallback={<PageLoader />}>
+      <FlyingElements />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
@@ -45,8 +48,16 @@ export default function App() {
           <Route
             path="/candidates"
             element={
-              <ProtectedRoute roles={['organization']}>
+              <ProtectedRoute roles={['organization', 'admin']}>
                 <CandidateSearch />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/candidates/:id"
+            element={
+              <ProtectedRoute roles={['organization', 'admin']}>
+                <CandidateDetail />
               </ProtectedRoute>
             }
           />

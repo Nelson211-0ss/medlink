@@ -20,6 +20,10 @@ export class UserRepository extends BaseRepository<UserRow> {
     );
   }
 
+  async updateAvatar(userId: string, objectName: string): Promise<void> {
+    await query('UPDATE users SET avatar = $1, updated_at = now() WHERE id = $2', [objectName, userId]);
+  }
+
   async countByRole(): Promise<Record<string, number>> {
     const { rows } = await query<{ role: string; count: string }>(
       'SELECT role, COUNT(*)::text AS count FROM users GROUP BY role',

@@ -1,4 +1,6 @@
-import { esClient, ES_INDICES } from '../config/elasticsearch';
+import { esClient, ES_INDICES, checkElasticsearch } from '../config/elasticsearch';
+import { ProfessionalRepository } from '../repositories/professional.repository';
+import { FileService } from './file.service';
 import { JobRow, ProfessionalRow } from '../types/entities';
 import { logger } from '../config/logger';
 
@@ -11,6 +13,11 @@ interface SearchOpts {
 }
 
 export class SearchService {
+  constructor(
+    private professionals: ProfessionalRepository,
+    private files: FileService,
+  ) {}
+
   async indexProfessional(p: ProfessionalRow, fullName: string): Promise<void> {
     try {
       await esClient.index({
@@ -85,17 +92,69 @@ export class SearchService {
     return must.length || filter.length ? { bool: { must, filter } } : { match_all: {} };
   }
 
+  /**
+   * Organization talent discovery — backed by Postgres so every registered
+   * professional is visible even when Elasticsearch is unavailable.
+   */
   async searchProfessionals(opts: SearchOpts) {
     const page = opts.page ?? 1;
     const limit = opts.limit ?? 20;
-    const result = await esClient.search({
-      index: ES_INDICES.professionals,
-      from: (page - 1) * limit,
-      size: limit,
-      query: this.buildQuery(opts, ['fullName^2', 'specialization', 'skills', 'location']) as never,
-      sort: opts.sort === 'recent' ? [{ createdAt: 'desc' }] : undefined,
+    const filters = opts.filters ?? {};
+
+    const { rows, total } = await this.professionals.searchDiscoverable({
+      q: opts.q,
+      profession: filters.profession,
+      specialization: filters.specialization,
+      country: filters.country,
+      city: filters.city,
+      availability: filters.availability,
+      page,
+      limit,
     });
-    return this.format(result, page, limit);
+
+    // Optionally enrich with Elasticsearch scores when available.
+    let scoreMap = new Map<string, number>();
+    if (opts.q && (await checkElasticsearch())) {
+      try {
+        const es = await esClient.search({
+          index: ES_INDICES.professionals,
+          size: 100,
+          query: this.buildQuery(opts, ['fullName^2', 'specialization', 'skills', 'location']) as never,
+        });
+        scoreMap = new Map(
+          (es.hits.hits as Array<{ _id: string; _score: number }>).map((h) => [h._id, h._score]),
+        );
+      } catch (err) {
+        logger.warn({ err }, 'Elasticsearch professional search skipped');
+      }
+    }
+
+    const data = await Promise.all(
+      rows.map(async (p) => ({
+        id: p.id,
+        score: scoreMap.get(p.id),
+        fullName: `${p.first_name} ${p.last_name}`.trim(),
+        profession: p.profession,
+        specialization: p.specialization,
+        skills: p.skills ?? [],
+        experienceYears: p.experience_years,
+        location: p.location,
+        country: p.country,
+        city: p.city,
+        availability: p.availability,
+        salaryExpectation: p.salary_expectation,
+        verificationStatus: p.verification_status,
+        profileCompletion: p.profile_completion,
+        openToOffers: p.open_to_offers,
+        avatar: await this.files.resolveUrl(p.avatar),
+        createdAt: p.created_at,
+      })),
+    );
+
+    return {
+      data,
+      meta: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) },
+    };
   }
 
   async searchJobs(opts: SearchOpts) {

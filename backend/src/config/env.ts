@@ -36,6 +36,10 @@ const envSchema = z.object({
   MINIO_ENDPOINT: z.string().default('localhost'),
   MINIO_PORT: z.coerce.number().default(9000),
   MINIO_USE_SSL: boolFromString(false),
+  // Browser-reachable host used when generating presigned download URLs.
+  MINIO_PUBLIC_ENDPOINT: z.string().default('localhost'),
+  MINIO_PUBLIC_PORT: z.coerce.number().default(9000),
+  MINIO_PUBLIC_USE_SSL: boolFromString(false),
   MINIO_ACCESS_KEY: z.string().default('minioadmin'),
   MINIO_SECRET_KEY: z.string().default('minioadmin123'),
   MINIO_BUCKET: z.string().default('medilink'),

@@ -4,6 +4,7 @@ import { ProfessionalRepository } from '../repositories/professional.repository'
 import { OrganizationRepository } from '../repositories/organization.repository';
 import { SubscriptionRepository } from '../repositories/subscription.repository';
 import { EmailService } from './email.service';
+import { FileService } from './file.service';
 import { withTransaction } from '../database/pool';
 import {
   hashPassword,
@@ -38,16 +39,18 @@ export class AuthService {
     private organizations: OrganizationRepository,
     private subscriptions: SubscriptionRepository,
     private email: EmailService,
+    private files: FileService,
+    private onProfessionalRegistered?: (userId: string) => Promise<void>,
   ) {}
 
-  private publicUser(u: UserRow) {
+  private async publicUser(u: UserRow) {
     return {
       id: u.id,
       firstName: u.first_name,
       lastName: u.last_name,
       email: u.email,
       role: u.role,
-      avatar: u.avatar,
+      avatar: await this.files.resolveUrl(u.avatar),
       status: u.status,
       emailVerified: u.email_verified,
     };
@@ -108,8 +111,12 @@ export class AuthService {
     });
     await this.email.sendVerification(user.email, user.first_name, token);
 
+    if (input.role === ROLES.PROFESSIONAL && this.onProfessionalRegistered) {
+      await this.onProfessionalRegistered(user.id);
+    }
+
     const tokens = await this.issueTokens(user, meta);
-    return { user: this.publicUser(user), ...tokens };
+    return { user: await this.publicUser(user), ...tokens };
   }
 
   async login(email: string, password: string, meta?: { userAgent?: string; ip?: string }) {
@@ -122,7 +129,7 @@ export class AuthService {
     if (!valid) throw new UnauthorizedError('Invalid email or password');
 
     const tokens = await this.issueTokens(user, meta);
-    return { user: this.publicUser(user), ...tokens };
+    return { user: await this.publicUser(user), ...tokens };
   }
 
   private async issueTokens(user: UserRow, meta?: { userAgent?: string; ip?: string }) {
@@ -155,7 +162,7 @@ export class AuthService {
     // Rotate: revoke old, issue new.
     await this.tokens.revokeRefreshToken(hashToken(refreshToken));
     const tokens = await this.issueTokens(user, meta);
-    return { user: this.publicUser(user), ...tokens };
+    return { user: await this.publicUser(user), ...tokens };
   }
 
   async logout(refreshToken?: string) {
@@ -195,6 +202,6 @@ export class AuthService {
   async me(userId: string) {
     const user = await this.users.findById(userId);
     if (!user) throw new UnauthorizedError();
-    return this.publicUser(user);
+    return await this.publicUser(user);
   }
 }

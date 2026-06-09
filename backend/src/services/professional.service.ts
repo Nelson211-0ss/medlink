@@ -1,5 +1,6 @@
 import { ProfessionalRepository } from '../repositories/professional.repository';
 import { UserRepository } from '../repositories/user.repository';
+import { FileService } from './file.service';
 import { query } from '../database/pool';
 import { NotFoundError } from '../utils/errors';
 import { ProfessionalRow } from '../types/entities';
@@ -8,6 +9,7 @@ export class ProfessionalService {
   constructor(
     private professionals: ProfessionalRepository,
     private users: UserRepository,
+    private files: FileService,
     private onProfileChanged?: (p: ProfessionalRow) => Promise<void>,
   ) {}
 
@@ -31,7 +33,13 @@ export class ProfessionalService {
   async getByUserId(userId: string) {
     const profile = await this.professionals.findByUserId(userId);
     if (!profile) throw new NotFoundError('Professional profile not found');
-    return profile;
+    const user = await this.users.findById(userId);
+    return {
+      ...profile,
+      first_name: user?.first_name,
+      last_name: user?.last_name,
+      avatar: user ? await this.files.resolveUrl(user.avatar) : null,
+    };
   }
 
   async getFullProfile(professionalId: string) {
@@ -49,7 +57,7 @@ export class ProfessionalService {
       user: user && {
         firstName: user.first_name,
         lastName: user.last_name,
-        avatar: user.avatar,
+        avatar: await this.files.resolveUrl(user.avatar),
         email: user.email,
       },
       education: education.rows,

@@ -10,6 +10,22 @@ export const minioClient = new MinioClient({
   secretKey: env.MINIO_SECRET_KEY,
 });
 
+/**
+ * Client configured with a browser-reachable host. Used only to sign download
+ * URLs so the host in the signature resolves from the user's machine (the
+ * internal `minio` Docker hostname is not resolvable outside the network).
+ */
+export const minioPublicClient = new MinioClient({
+  endPoint: env.MINIO_PUBLIC_ENDPOINT,
+  port: env.MINIO_PUBLIC_PORT,
+  useSSL: env.MINIO_PUBLIC_USE_SSL,
+  accessKey: env.MINIO_ACCESS_KEY,
+  secretKey: env.MINIO_SECRET_KEY,
+  // Pin the region so signing never triggers a bucket-region lookup against the
+  // public host (which is not reachable from inside the container network).
+  region: env.AWS_REGION,
+});
+
 export const STORAGE_BUCKET = env.MINIO_BUCKET;
 
 /** Ensure the storage bucket exists (and is readable for public assets prefix). */

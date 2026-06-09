@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { minioClient, STORAGE_BUCKET } from '../config/storage';
+import { minioClient, minioPublicClient, STORAGE_BUCKET } from '../config/storage';
 import { ALLOWED_UPLOAD_MIME, MAX_UPLOAD_BYTES } from '../utils/constants';
 import { BadRequestError } from '../utils/errors';
 
@@ -31,7 +31,14 @@ export class FileService {
 
   /** Time-limited download URL (works for both MinIO and S3-compatible). */
   presignedUrl(objectName: string, expirySeconds = 7 * 24 * 60 * 60): Promise<string> {
-    return minioClient.presignedGetObject(STORAGE_BUCKET, objectName, expirySeconds);
+    return minioPublicClient.presignedGetObject(STORAGE_BUCKET, objectName, expirySeconds);
+  }
+
+  /** Turn a stored object key (or legacy http URL) into a browser-ready URL. */
+  async resolveUrl(stored: string | null | undefined): Promise<string | null> {
+    if (!stored) return null;
+    if (stored.startsWith('http://') || stored.startsWith('https://')) return stored;
+    return this.presignedUrl(stored);
   }
 
   async remove(objectName: string): Promise<void> {

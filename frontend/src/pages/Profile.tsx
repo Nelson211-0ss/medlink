@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input, Label, Select, Textarea } from '@/components/ui/input';
 import { PageLoader, Progress, Spinner } from '@/components/ui/misc';
+import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
 
 const professions = ['nurse', 'doctor', 'pharmacist', 'lab_technician', 'radiographer', 'midwife', 'physiotherapist', 'caregiver'];
 const availabilities = ['full_time', 'part_time', 'contract', 'locum', 'remote'];
@@ -14,6 +15,7 @@ const availabilities = ['full_time', 'part_time', 'contract', 'locum', 'remote']
 export default function Profile() {
   const user = useAuthStore((s) => s.user)!;
   const isOrg = user.role === 'organization';
+  const isPro = user.role === 'professional';
   const endpoint = isOrg ? '/organizations/me' : '/professionals/me';
   const qc = useQueryClient();
 
@@ -71,6 +73,19 @@ export default function Profile() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold tracking-tight">My profile</h1>
+
+      {isPro && (
+        <Card>
+          <CardContent className="p-5">
+            <ProfilePhotoUpload
+              avatar={(form.avatar as string) ?? user.avatar}
+              firstName={user.firstName}
+              lastName={user.lastName}
+              onUploaded={(url) => setForm((f) => ({ ...f, avatar: url }))}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {!isOrg && typeof form.profile_completion === 'number' && (
         <Card>

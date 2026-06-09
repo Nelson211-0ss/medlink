@@ -69,7 +69,7 @@ export default function Billing() {
                 <ul className="space-y-2 text-sm">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-secondary" /> {f}
+                      <Check className="h-4 w-4 text-primary" /> {f}
                     </li>
                   ))}
                 </ul>

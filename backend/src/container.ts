@@ -47,7 +47,8 @@ const auditRepo = new AuditRepository();
 
 // ---- services ----
 const emailService = new EmailService();
-const searchService = new SearchService();
+const fileService = new FileService();
+const searchService = new SearchService(professionalRepo, fileService);
 const notificationService = new NotificationService(notificationRepo);
 
 const authService = new AuthService(
@@ -57,11 +58,20 @@ const authService = new AuthService(
   organizationRepo,
   subscriptionRepo,
   emailService,
+  fileService,
+  async (userId) => {
+    const profile = await professionalRepo.findByUserId(userId);
+    const user = await userRepo.findById(userId);
+    if (profile && user) {
+      await searchService.indexProfessional(profile, `${user.first_name} ${user.last_name}`);
+    }
+  },
 );
 
 const professionalService = new ProfessionalService(
   professionalRepo,
   userRepo,
+  fileService,
   async (p) => {
     const user = await userRepo.findById(p.user_id);
     if (user) await searchService.indexProfessional(p, `${user.first_name} ${user.last_name}`);
@@ -83,7 +93,6 @@ const applicationService = new ApplicationService(
   emailService,
 );
 
-const fileService = new FileService();
 const messageService = new MessageService(messageRepo, notificationService);
 const subscriptionService = new SubscriptionService(subscriptionRepo, userRepo);
 const adminService = new AdminService(

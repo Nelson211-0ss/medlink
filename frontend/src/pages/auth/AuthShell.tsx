@@ -38,7 +38,7 @@ export function AuthShell({
           className="absolute inset-0 h-full w-full object-cover"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-tr from-primary/90 via-primary/70 to-secondary/60" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-primary/95 via-primary/80 to-primary/60" />
         <div className="relative flex h-full flex-col justify-end p-12 text-primary-foreground">
           <blockquote className="text-2xl font-semibold leading-snug">
             “MediLink matched our ICU with three qualified RNs in under a week.”

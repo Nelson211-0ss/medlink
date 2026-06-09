@@ -4,6 +4,8 @@ import { authenticate } from '../middleware/authenticate';
 import { authorize } from '../middleware/authorize';
 import { validate } from '../middleware/validate';
 import { ROLES } from '../utils/constants';
+
+const orgOrAdmin = [authenticate, authorize(ROLES.ORGANIZATION, ROLES.ADMIN)];
 import {
   updateProfessionalSchema,
   availabilitySchema,
@@ -21,6 +23,6 @@ router.post('/me/certifications', ...onlyPro, professionalController.addCertific
 router.post('/me/licenses', ...onlyPro, professionalController.addLicense);
 router.post('/me/experience', ...onlyPro, professionalController.addWorkExperience);
 
-router.get('/:id', authenticate, professionalController.getPublicProfile);
+router.get('/:id', ...orgOrAdmin, professionalController.getPublicProfile);
 
 export default router;

@@ -105,6 +105,9 @@ services:
       ELASTICSEARCH_NODE: http://elasticsearch:9200
       MINIO_ENDPOINT: minio
       MINIO_PORT: "9000"
+      # Presigned download URLs must use a host the browser can resolve.
+      MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-localhost}
+      MINIO_PUBLIC_PORT: "9000"
       SMTP_HOST: mailhog
       SMTP_PORT: "1025"
     depends_on:

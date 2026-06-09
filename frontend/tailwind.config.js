@@ -42,14 +42,19 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       keyframes: {
         'accordion-down': { from: { height: '0' }, to: { height: 'var(--radix-accordion-content-height)' } },
         'fade-in': { from: { opacity: '0', transform: 'translateY(8px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
+        fly: {
+          '0%, 100%': { transform: 'translateY(0) translateX(0)', opacity: '0.35' },
+          '50%': { transform: 'translateY(-28px) translateX(12px)', opacity: '0.7' },
+        },
       },
       animation: {
         'fade-in': 'fade-in 0.4s ease-out',
+        fly: 'fly 6s ease-in-out infinite',
       },
     },
   },
