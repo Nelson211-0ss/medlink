@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { Briefcase, MapPin, Phone, UserRound } from 'lucide-react';
 import { api, ApiEnvelope, apiError } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input, Label, Select, Textarea } from '@/components/ui/input';
 import { PageLoader, Progress, Spinner } from '@/components/ui/misc';
 import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
 import { OrganizationLogoUpload } from '@/components/OrganizationLogoUpload';
+import { CountrySelect } from '@/components/CountrySelect';
+import { cn, titleCase } from '@/lib/utils';
 
 const professions = ['nurse', 'doctor', 'pharmacist', 'lab_technician', 'radiographer', 'midwife', 'physiotherapist', 'caregiver'];
 const availabilities = ['full_time', 'part_time', 'contract', 'locum', 'remote'];
@@ -73,135 +76,293 @@ export default function Profile() {
     }
   };
 
+  const completion = typeof form.profile_completion === 'number' ? (form.profile_completion as number) : null;
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">My profile</h1>
+    <div className="space-y-5">
+      <div className="dash-page-header">
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-white">My profile</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          {isOrg ? 'Update your facility details.' : 'Update credentials and contact info.'}
+        </p>
+      </div>
 
-      {isOrg && (
-        <Card>
-          <CardContent className="p-5">
-            <OrganizationLogoUpload
-              logo={form.logo as string | null}
-              organizationName={form.organization_name as string}
-              onUploaded={(url) => {
-                setForm((f) => ({ ...f, logo: url }));
-                qc.invalidateQueries({ queryKey: ['jobs'] });
-              }}
-            />
-          </CardContent>
-        </Card>
-      )}
+      <form onSubmit={submit} className="profile-layout">
+        <aside className="profile-sidebar">
+          <Card className="dash-panel">
+            <CardContent className="p-5">
+              {isOrg ? (
+                <OrganizationLogoUpload
+                  stacked
+                  logo={form.logo as string | null}
+                  organizationName={form.organization_name as string}
+                  onUploaded={(url) => {
+                    setForm((f) => ({ ...f, logo: url }));
+                    qc.invalidateQueries({ queryKey: ['jobs'] });
+                  }}
+                />
+              ) : isPro ? (
+                <ProfilePhotoUpload
+                  stacked
+                  avatar={(form.avatar as string) ?? user.avatar}
+                  firstName={user.firstName}
+                  lastName={user.lastName}
+                  onUploaded={(url) => setForm((f) => ({ ...f, avatar: url }))}
+                />
+              ) : null}
+            </CardContent>
+          </Card>
 
-      {isPro && (
-        <Card>
-          <CardContent className="p-5">
-            <ProfilePhotoUpload
-              avatar={(form.avatar as string) ?? user.avatar}
-              firstName={user.firstName}
-              lastName={user.lastName}
-              onUploaded={(url) => setForm((f) => ({ ...f, avatar: url }))}
-            />
-          </CardContent>
-        </Card>
-      )}
-
-      {!isOrg && typeof form.profile_completion === 'number' && (
-        <Card>
-          <CardContent className="space-y-2 p-5">
-            <div className="flex justify-between text-sm">
-              <span className="font-medium">Profile completion</span>
-              <span className="text-muted-foreground">{form.profile_completion as number}%</span>
-            </div>
-            <Progress value={form.profile_completion as number} />
-          </CardContent>
-        </Card>
-      )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{isOrg ? 'Organization details' : 'Professional details'}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
-            {isOrg ? (
-              <>
-                <Field label="Organization name" value={form.organization_name} onChange={(v) => set('organization_name', v)} />
-                <Field label="Type" value={form.organization_type} onChange={(v) => set('organization_type', v)} />
-                <Field label="Website" value={form.website} onChange={(v) => set('website', v)} />
-                <Field label="Country" value={form.country} onChange={(v) => set('country', v)} />
-                <Field label="City" value={form.city} onChange={(v) => set('city', v)} />
-                <Field label="Address" value={form.address} onChange={(v) => set('address', v)} />
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label>Description</Label>
-                  <Textarea value={(form.description as string) ?? ''} onChange={(e) => set('description', e.target.value)} />
+          {isPro && completion !== null && (
+            <Card className="dash-panel">
+              <CardHeader className="space-y-1 p-4 pb-0">
+                <CardTitle className="text-base">Profile completion</CardTitle>
+                <CardDescription>Improves job matches.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2.5 p-4">
+                <div className="flex items-center justify-between gap-2 text-sm">
+                  <span className="font-medium text-slate-700 dark:text-slate-300">Progress</span>
+                  <span className="tabular-nums text-slate-500">{completion}%</span>
                 </div>
-              </>
-            ) : (
-              <>
+                <Progress value={completion} />
+              </CardContent>
+            </Card>
+          )}
+        </aside>
+
+        <div className="profile-form-main">
+          {isOrg ? (
+            <>
+              <FormSection icon={Briefcase} title="Organization" description="Facility details." cols={3}>
                 <Field
-                  label="Phone number"
-                  type="tel"
-                  value={form.phone}
-                  onChange={(v) => set('phone', v)}
-                  hint="Visible to organizations when they view your profile."
+                  label="Name"
+                  value={form.organization_name}
+                  onChange={(v) => set('organization_name', v)}
+                  grid
+                  maxLength={160}
                 />
                 <Field
-                  label="Contact email"
-                  type="email"
-                  value={form.contact_email}
-                  onChange={(v) => set('contact_email', v)}
-                  hint={`Organizations can use this to reach you.${form.email ? ` Defaults to ${form.email as string}.` : ''}`}
+                  label="Type"
+                  value={form.organization_type}
+                  onChange={(v) => set('organization_type', v)}
+                  placeholder="Hospital"
+                  grid
+                  maxLength={60}
                 />
-                <div className="space-y-1.5">
-                  <Label>Profession</Label>
-                  <Select value={(form.profession as string) ?? ''} onChange={(e) => set('profession', e.target.value)}>
-                    <option value="">Select...</option>
-                    {professions.map((p) => (
-                      <option key={p} value={p}>
-                        {p.replace(/_/g, ' ')}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <Field label="Specialization" value={form.specialization} onChange={(v) => set('specialization', v)} />
-                <Field label="Experience (years)" type="number" value={form.experience_years} onChange={(v) => set('experience_years', v)} />
-                <div className="space-y-1.5">
-                  <Label>Availability</Label>
-                  <Select value={(form.availability as string) ?? ''} onChange={(e) => set('availability', e.target.value)}>
-                    <option value="">Select...</option>
-                    {availabilities.map((a) => (
-                      <option key={a} value={a}>
-                        {a.replace(/_/g, ' ')}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <Field label="Salary expectation" type="number" value={form.salary_expectation} onChange={(v) => set('salary_expectation', v)} />
-                <Field label="License number" value={form.license_number} onChange={(v) => set('license_number', v)} />
-                <Field label="Country" value={form.country} onChange={(v) => set('country', v)} />
-                <Field label="City" value={form.city} onChange={(v) => set('city', v)} />
                 <Field
-                  label="Skills (comma separated)"
+                  label="Website"
+                  value={form.website}
+                  onChange={(v) => set('website', v)}
+                  placeholder="https://"
+                  grid
+                />
+                <CountrySelect value={form.country as string} onChange={(v) => set('country', v)} grid />
+                <Field
+                  label="City"
+                  value={form.city}
+                  onChange={(v) => set('city', v)}
+                  placeholder="Boston, MA"
+                  grid
+                  maxLength={80}
+                />
+                <Field
+                  label="Address"
+                  value={form.address}
+                  onChange={(v) => set('address', v)}
+                  placeholder="Street address"
+                  grid
+                  maxLength={400}
+                />
+              </FormSection>
+
+              <FormSection icon={UserRound} title="About" description="Short overview.">
+                <TextareaField
+                  label="Description"
+                  value={form.description}
+                  onChange={(v) => set('description', v)}
+                  placeholder="Mission and specialties."
+                  rows={4}
+                  maxLength={4000}
+                />
+              </FormSection>
+            </>
+          ) : (
+            <>
+              <FormSection icon={Phone} title="Contact" description="How recruiters reach you.">
+                <FieldCluster>
+                  <Field
+                    label="Phone"
+                    type="tel"
+                    value={form.phone}
+                    onChange={(v) => set('phone', v)}
+                    placeholder="+1 555 000 0000"
+                    size="lg"
+                    maxLength={30}
+                  />
+                  <Field
+                    label="Email"
+                    type="email"
+                    value={form.contact_email}
+                    onChange={(v) => set('contact_email', v)}
+                    placeholder={form.email as string}
+                    size="lg"
+                    maxLength={320}
+                    hint={form.email ? `Uses ${form.email as string} if empty.` : undefined}
+                  />
+                </FieldCluster>
+              </FormSection>
+
+              <FormSection icon={MapPin} title="Location" description="Where you work.">
+                <FieldCluster>
+                  <CountrySelect value={form.country as string} onChange={(v) => set('country', v)} />
+                  <Field
+                    label="City"
+                    value={form.city}
+                    onChange={(v) => set('city', v)}
+                    placeholder="Boston, MA"
+                    size="md"
+                    maxLength={80}
+                  />
+                </FieldCluster>
+              </FormSection>
+
+              <FormSection icon={Briefcase} title="Credentials" description="Role and experience." cols={3}>
+                <SelectField
+                  label="Profession"
+                  value={form.profession as string}
+                  onChange={(v) => set('profession', v)}
+                  placeholder="Select..."
+                  grid
+                  options={professions.map((p) => ({ value: p, label: titleCase(p) }))}
+                />
+                <Field
+                  label="Specialty"
+                  value={form.specialization}
+                  onChange={(v) => set('specialization', v)}
+                  placeholder="ICU"
+                  grid
+                  maxLength={120}
+                />
+                <Field
+                  label="Years"
+                  type="number"
+                  value={form.experience_years}
+                  onChange={(v) => set('experience_years', v)}
+                  placeholder="0"
+                  grid
+                />
+                <SelectField
+                  label="Availability"
+                  value={form.availability as string}
+                  onChange={(v) => set('availability', v)}
+                  placeholder="Select..."
+                  grid
+                  options={availabilities.map((a) => ({ value: a, label: titleCase(a) }))}
+                />
+                <Field
+                  label="License #"
+                  value={form.license_number}
+                  onChange={(v) => set('license_number', v)}
+                  placeholder="LIC-123456"
+                  grid
+                  maxLength={120}
+                />
+                <Field
+                  label="Salary (USD)"
+                  type="number"
+                  value={form.salary_expectation}
+                  onChange={(v) => set('salary_expectation', v)}
+                  placeholder="95000"
+                  grid
+                />
+              </FormSection>
+
+              <FormSection icon={UserRound} title="Skills & bio" description="Expertise summary.">
+                <Field
+                  label="Skills"
                   value={Array.isArray(form.skills) ? (form.skills as string[]).join(', ') : form.skills}
                   onChange={(v) => set('skills', v)}
-                  full
+                  placeholder="ICU, ACLS"
+                  row
+                  hint="Comma-separated."
                 />
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label>Bio</Label>
-                  <Textarea value={(form.bio as string) ?? ''} onChange={(e) => set('bio', e.target.value)} />
-                </div>
-              </>
-            )}
-            <div className="sm:col-span-2">
-              <Button type="submit" disabled={save.isPending}>
-                {save.isPending && <Spinner />} Save changes
+                <TextareaField
+                  label="Bio"
+                  value={form.bio}
+                  onChange={(v) => set('bio', v)}
+                  placeholder="Brief experience summary."
+                  rows={4}
+                  maxLength={4000}
+                />
+              </FormSection>
+            </>
+          )}
+
+          <Card className="dash-panel profile-section-card">
+            <CardContent className="flex items-center justify-between gap-4 p-4">
+              <p className="text-sm text-muted-foreground">{save.isPending ? 'Saving…' : 'Save to apply.'}</p>
+              <Button type="submit" disabled={save.isPending} className="shrink-0 sm:min-w-[120px]">
+                {save.isPending && <Spinner />} Save
               </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </div>
+      </form>
     </div>
   );
+}
+
+function FieldCluster({ children }: { children: React.ReactNode }) {
+  return <div className="profile-field-cluster">{children}</div>;
+}
+
+function FormSection({
+  icon: Icon,
+  title,
+  description,
+  children,
+  cols,
+}: {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+  cols?: 3;
+}) {
+  return (
+    <Card className="dash-panel profile-section-card overflow-hidden">
+      <CardHeader className="border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+        <div className="flex items-center gap-2.5">
+          <div className="dash-stat-icon dash-stat-icon-blue shrink-0">
+            <Icon className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <CardTitle className="text-base">{title}</CardTitle>
+            <CardDescription className="mt-0.5">{description}</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className={cn('profile-section-grid p-4', cols === 3 && 'profile-section-grid--3')}>
+        {children}
+      </CardContent>
+    </Card>
+  );
+}
+
+type FieldSize = 'sm' | 'md' | 'lg' | 'xl' | 'address';
+
+const FIELD_WIDTH: Record<FieldSize, string> = {
+  sm: 'profile-field--sm',
+  md: 'profile-field--md',
+  lg: 'profile-field--lg',
+  xl: 'profile-field--xl',
+  address: 'profile-field--address',
+};
+
+function fieldWidthClass(size: FieldSize, opts?: { row?: boolean; grid?: boolean }) {
+  if (opts?.grid) return cn('profile-field', 'profile-field--grid');
+  if (opts?.row) return cn('profile-field', 'profile-field--row');
+  return cn('profile-field', FIELD_WIDTH[size]);
 }
 
 function Field({
@@ -209,21 +370,101 @@ function Field({
   value,
   onChange,
   type = 'text',
-  full,
+  row,
+  grid,
   hint,
+  placeholder,
+  size = 'lg',
+  maxLength,
 }: {
   label: string;
   value: unknown;
   onChange: (v: string) => void;
   type?: string;
-  full?: boolean;
+  row?: boolean;
+  grid?: boolean;
   hint?: string;
+  placeholder?: string;
+  size?: FieldSize;
+  maxLength?: number;
 }) {
   return (
-    <div className={`space-y-1.5 ${full ? 'sm:col-span-2' : ''}`}>
+    <div className={fieldWidthClass(size, { row, grid })}>
       <Label>{label}</Label>
-      <Input type={type} value={(value as string) ?? ''} onChange={(e) => onChange(e.target.value)} />
-      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      <Input
+        type={type}
+        value={(value as string) ?? ''}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        className="w-full"
+      />
+      {hint && <p className="text-xs leading-snug text-muted-foreground">{hint}</p>}
+    </div>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  placeholder,
+  size = 'lg',
+  grid,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+  size?: FieldSize;
+  grid?: boolean;
+}) {
+  return (
+    <div className={fieldWidthClass(size, { grid })}>
+      <Label>{label}</Label>
+      <Select value={value ?? ''} onChange={(e) => onChange(e.target.value)} className="w-full">
+        <option value="">{placeholder ?? 'Select...'}</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </Select>
+    </div>
+  );
+}
+
+function TextareaField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  rows = 3,
+  hint,
+  maxLength,
+}: {
+  label: string;
+  value: unknown;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  rows?: number;
+  hint?: string;
+  maxLength?: number;
+}) {
+  return (
+    <div className="profile-field profile-field--area">
+      <Label>{label}</Label>
+      <Textarea
+        value={(value as string) ?? ''}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        rows={rows}
+        maxLength={maxLength}
+        className="min-h-0 w-full resize-y"
+      />
+      {hint && <p className="text-xs leading-snug text-muted-foreground">{hint}</p>}
     </div>
   );
 }

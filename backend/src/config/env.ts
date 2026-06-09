@@ -60,6 +60,13 @@ const envSchema = z.object({
 
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(15 * 60 * 1000),
   RATE_LIMIT_MAX: z.coerce.number().default(300),
+
+  GOOGLE_CLIENT_ID: z.string().optional().default(''),
+  GOOGLE_CLIENT_SECRET: z.string().optional().default(''),
+  APPLE_CLIENT_ID: z.string().optional().default(''),
+  APPLE_TEAM_ID: z.string().optional().default(''),
+  APPLE_KEY_ID: z.string().optional().default(''),
+  APPLE_PRIVATE_KEY: z.string().optional().default(''),
 });
 
 const parsed = envSchema.safeParse(process.env);

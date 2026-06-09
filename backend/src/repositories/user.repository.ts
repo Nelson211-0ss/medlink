@@ -9,6 +9,10 @@ export class UserRepository extends BaseRepository<UserRow> {
     return this.findOne({ email });
   }
 
+  findByOAuth(provider: string, subject: string): Promise<UserRow | null> {
+    return this.findOne({ oauth_provider: provider, oauth_subject: subject });
+  }
+
   async setPassword(userId: string, passwordHash: string): Promise<void> {
     await query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, userId]);
   }

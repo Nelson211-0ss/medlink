@@ -11,13 +11,12 @@ import {
   CheckCircle2,
   Target,
   Clock,
-  BarChart3,
 } from 'lucide-react';
 import { api, ApiEnvelope } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress, PageLoader } from '@/components/ui/misc';
+import { PageLoader } from '@/components/ui/misc';
 import { Button } from '@/components/ui/button';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { DashboardStatCard } from '@/components/DashboardStatCard';
@@ -35,7 +34,6 @@ import {
 import { titleCase } from '@/lib/utils';
 
 interface ProDash {
-  profileCompletion: number;
   verificationStatus: string;
   applications: number;
   applicationPipeline?: Record<string, number>;
@@ -93,7 +91,7 @@ export default function Dashboard() {
           Welcome back, {user.firstName}
         </h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          {user.role === 'professional' && 'Track applications, matches, and profile strength.'}
+          {user.role === 'professional' && 'Track applications, matches, and invitations.'}
           {user.role === 'organization' && 'Monitor hiring pipeline, applicants, and facility reach.'}
           {user.role === 'admin' && 'Platform overview — users, jobs, revenue and verification.'}
         </p>
@@ -119,10 +117,9 @@ function ProfessionalDashboard({ d }: { d: ProDash }) {
         <DashboardStatCard icon={Bell} label="Invitations received" numeric={d.invitations} sub="This month" colorIndex={1} />
         <DashboardStatCard icon={Briefcase} label="Saved jobs" numeric={d.savedJobs} colorIndex={2} />
         <DashboardStatCard icon={Target} label="Avg. match score" numeric={avgMatch} suffix="%" colorIndex={3} />
-        <DashboardStatCard icon={BarChart3} label="Profile completion" numeric={d.profileCompletion} suffix="%" colorIndex={4} />
-        <DashboardStatCard icon={Bell} label="Unread notifications" numeric={d.unreadNotifications} colorIndex={5} />
-        <DashboardStatCard icon={Clock} label="Active applications" numeric={d.activeApplications ?? 0} colorIndex={6} />
-        <DashboardStatCard icon={CheckCircle2} label="Offers received" numeric={d.offersReceived ?? 0} colorIndex={7} />
+        <DashboardStatCard icon={Bell} label="Unread notifications" numeric={d.unreadNotifications} colorIndex={4} />
+        <DashboardStatCard icon={Clock} label="Active applications" numeric={d.activeApplications ?? 0} colorIndex={5} />
+        <DashboardStatCard icon={CheckCircle2} label="Offers received" numeric={d.offersReceived ?? 0} colorIndex={6} />
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3 lg:items-stretch">
@@ -164,15 +161,7 @@ function ProfessionalDashboard({ d }: { d: ProDash }) {
           <CardHeader className="p-4 pb-2">
             <CardTitle className="text-base">Career insights</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-1 flex-col justify-center space-y-3 p-4 pt-0">
-            <DonutChart
-              centerLabel={`${d.profileCompletion}%`}
-              centerSub="profile"
-              segments={[
-                { label: 'Complete', value: d.profileCompletion, color: DASHBOARD_COLORS.green },
-                { label: 'Remaining', value: Math.max(100 - d.profileCompletion, 0), color: DASHBOARD_COLORS.orange },
-              ]}
-            />
+          <CardContent className="flex flex-1 flex-col justify-center p-4 pt-0">
             <div className="grid grid-cols-2 gap-2">
               <InsightTile
                 label="Response rate"
@@ -185,59 +174,41 @@ function ProfessionalDashboard({ d }: { d: ProDash }) {
                 value={titleCase(d.verificationStatus)}
                 hint="License & credentials"
               />
+              <InsightTile label="Saved jobs" value={d.savedJobs} hint="Bookmarked roles" />
+              <InsightTile label="Invitations" value={d.invitations} hint="Received this month" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-3">
-        <Card className="dash-panel lg:col-span-1">
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-base">Profile strength</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 p-4 pt-0">
-            <Progress value={d.profileCompletion} />
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-500">Completion</span>
-              <span className="font-semibold text-slate-900 dark:text-white">
-                <AnimatedCounter end={d.profileCompletion} suffix="%" />
-              </span>
-            </div>
-            <Button variant="outline" className="w-full" asChild>
-              <Link to="/profile">Complete your profile</Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="dash-panel lg:col-span-2">
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="flex items-center gap-2 text-base text-slate-900 dark:text-white">
-              <Sparkles className="h-4 w-4 text-blue-600" /> Top job matches
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 p-4 pt-0">
-            {d.recommendedJobs?.length ? (
-              d.recommendedJobs.map((m) => (
-                <Link
-                  key={m.job.id}
-                  to={`/jobs/${m.job.id}`}
-                  className="flex items-center justify-between rounded-lg bg-slate-50 p-3 transition-colors hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800/70"
-                >
-                  <div>
-                    <p className="font-medium">{m.job.title}</p>
-                    <p className="text-sm text-muted-foreground">{m.reasons?.slice(0, 2).join(' · ')}</p>
-                  </div>
-                  <Badge variant="default">
-                    <AnimatedCounter end={m.matchScore} suffix="%" />
-                  </Badge>
-                </Link>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">Complete your profile to get matched.</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <Card className="dash-panel">
+        <CardHeader className="p-4 pb-2">
+          <CardTitle className="flex items-center gap-2 text-base text-slate-900 dark:text-white">
+            <Sparkles className="h-4 w-4 text-blue-600" /> Top job matches
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 p-4 pt-0">
+          {d.recommendedJobs?.length ? (
+            d.recommendedJobs.map((m) => (
+              <Link
+                key={m.job.id}
+                to={`/jobs/${m.job.id}`}
+                className="flex items-center justify-between rounded-lg bg-slate-50 p-3 transition-colors hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800/70"
+              >
+                <div>
+                  <p className="font-medium">{m.job.title}</p>
+                  <p className="text-sm text-muted-foreground">{m.reasons?.slice(0, 2).join(' · ')}</p>
+                </div>
+                <Badge variant="default">
+                  <AnimatedCounter end={m.matchScore} suffix="%" />
+                </Badge>
+              </Link>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground">Complete your profile to get matched.</p>
+          )}
+        </CardContent>
+      </Card>
     </>
   );
 }

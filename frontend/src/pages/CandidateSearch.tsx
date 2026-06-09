@@ -1,37 +1,37 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Search, Bookmark, MapPin, Eye } from 'lucide-react';
+import { Search, Users, Sparkles } from 'lucide-react';
 import { api, ApiEnvelope, apiError } from '@/lib/api';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input, Select } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, EmptyState, PageLoader } from '@/components/ui/misc';
+import { Input } from '@/components/ui/input';
+import { EmptyState } from '@/components/ui/misc';
+import { TalentCard, TalentCardSkeleton, type TalentPro } from '@/components/TalentCard';
 import { titleCase } from '@/lib/utils';
-
-interface Pro {
-  id: string;
-  fullName?: string;
-  profession?: string;
-  specialization?: string;
-  city?: string;
-  country?: string;
-  experienceYears?: number;
-  skills?: string[];
-  verificationStatus?: string;
-  profileCompletion?: number;
-  availability?: string;
-  avatar?: string | null;
-}
+import { nurseSlides, professionPortraits } from '@/lib/images';
 
 interface SearchResult {
-  data: Pro[];
+  data: TalentPro[];
   meta: { page: number; limit: number; total: number; totalPages: number };
 }
 
-const professions = ['nurse', 'doctor', 'pharmacist', 'lab_technician', 'radiographer', 'midwife', 'physiotherapist', 'caregiver'];
+const professions = [
+  'nurse',
+  'doctor',
+  'pharmacist',
+  'lab_technician',
+  'radiographer',
+  'midwife',
+  'physiotherapist',
+  'caregiver',
+] as const;
+
+function proPhoto(pro: TalentPro, index: number): string {
+  if (pro.avatar) return pro.avatar;
+  if (pro.profession && professionPortraits[pro.profession]) {
+    return professionPortraits[pro.profession];
+  }
+  return nurseSlides[index % nurseSlides.length].src;
+}
 
 export default function CandidateSearch() {
   const [q, setQ] = useState('');
@@ -56,95 +56,101 @@ export default function CandidateSearch() {
 
   const results = data?.data ?? [];
   const total = data?.meta?.total ?? results.length;
+  const hasFilters = !!q || !!profession;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Find talent</h1>
-        <p className="text-muted-foreground">
-          Browse every healthcare professional registered on MediLink — visible to all organizations.
-        </p>
-      </div>
+      {/* Hero */}
+      <section className="talent-hero">
+        <div className="relative z-10 max-w-2xl">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+            <Sparkles className="h-3.5 w-3.5" />
+            Talent directory
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Find talent</h1>
+          <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Discover verified healthcare professionals ready to join your team. Browse profiles, compare
+            skills, and connect with the right fit.
+          </p>
+        </div>
+      </section>
 
-      <div className="flex flex-wrap gap-3">
-        <div className="relative min-w-[220px] flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      {/* Search & filters */}
+      <section className="talent-search-bar space-y-4">
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            className="pl-9"
-            placeholder="Search by name, skill, specialty, city..."
+            className="h-11 rounded-xl border-border/60 bg-muted/40 pl-10 text-base shadow-none focus-visible:bg-background"
+            placeholder="Search by name, skill, specialty, or city..."
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
         </div>
-        <Select value={profession} onChange={(e) => setProfession(e.target.value)} className="w-48">
-          <option value="">All professions</option>
+
+        <div className="flex items-center gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <button
+            type="button"
+            onClick={() => setProfession('')}
+            className={`talent-filter-pill ${!profession ? 'talent-filter-pill--active' : ''}`}
+          >
+            All
+          </button>
           {professions.map((p) => (
-            <option key={p} value={p}>
+            <button
+              key={p}
+              type="button"
+              onClick={() => setProfession(profession === p ? '' : p)}
+              className={`talent-filter-pill ${profession === p ? 'talent-filter-pill--active' : ''}`}
+            >
               {titleCase(p)}
-            </option>
+            </button>
           ))}
-        </Select>
+        </div>
+      </section>
+
+      {/* Results header */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        {!isLoading && (
+          <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+            <Users className="h-4 w-4 text-primary" />
+            <span>
+              <span className="font-semibold text-foreground">{total}</span> professional
+              {total === 1 ? '' : 's'}
+              {hasFilters ? ' matching your search' : ' available'}
+            </span>
+          </p>
+        )}
+        {hasFilters && !isLoading && (
+          <button
+            type="button"
+            onClick={() => {
+              setQ('');
+              setProfession('');
+            }}
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            Clear filters
+          </button>
+        )}
       </div>
 
-      {!isLoading && (
-        <p className="text-sm text-muted-foreground">
-          <span className="font-semibold text-primary">{total}</span> professional{total === 1 ? '' : 's'} available
-        </p>
-      )}
-
+      {/* Grid */}
       {isLoading ? (
-        <PageLoader />
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <TalentCardSkeleton key={i} />
+          ))}
+        </div>
       ) : results.length ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {results.map((p) => (
-            <Card key={p.id} className="border-primary/10">
-              <CardContent className="flex items-start justify-between gap-4 p-5">
-                <div className="flex gap-3">
-                  <Avatar
-                    first={p.fullName?.split(' ')[0]}
-                    last={p.fullName?.split(' ')[1]}
-                    src={p.avatar}
-                    className="h-12 w-12"
-                  />
-                  <div className="space-y-1.5">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-semibold">{p.fullName ?? 'Healthcare professional'}</p>
-                      {p.verificationStatus === 'verified' && <Badge variant="default">Verified</Badge>}
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {titleCase(p.profession ?? 'professional')}
-                      {p.specialization && ` · ${p.specialization}`}
-                      {p.experienceYears ? ` · ${p.experienceYears} yrs` : ''}
-                    </p>
-                    {(p.city || p.country) && (
-                      <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5" /> {[p.city, p.country].filter(Boolean).join(', ')}
-                      </p>
-                    )}
-                    {p.availability && (
-                      <p className="text-xs text-primary">{titleCase(p.availability.replace(/_/g, ' '))}</p>
-                    )}
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {(p.skills ?? []).slice(0, 4).map((s) => (
-                        <Badge key={s} variant="secondary">
-                          {s}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Button variant="outline" size="icon" asChild>
-                    <Link to={`/candidates/${p.id}`} aria-label="View profile">
-                      <Eye className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button variant="outline" size="icon" onClick={() => save.mutate(p.id)} aria-label="Save candidate">
-                    <Bookmark className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {results.map((p, i) => (
+            <TalentCard
+              key={p.id}
+              pro={p}
+              photo={proPhoto(p, i)}
+              onSave={(id) => save.mutate(id)}
+              saving={save.isPending}
+            />
           ))}
         </div>
       ) : (

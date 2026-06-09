@@ -125,6 +125,9 @@ export class AuthService {
     if (user.status === USER_STATUS.SUSPENDED) {
       throw new UnauthorizedError('Account suspended. Contact support.');
     }
+    if (!user.password_hash) {
+      throw new UnauthorizedError('This account uses social sign-in. Continue with Google or Apple.');
+    }
     const valid = await verifyPassword(password, user.password_hash);
     if (!valid) throw new UnauthorizedError('Invalid email or password');
 
@@ -203,5 +206,77 @@ export class AuthService {
     const user = await this.users.findById(userId);
     if (!user) throw new UnauthorizedError();
     return await this.publicUser(user);
+  }
+
+  async oauthLoginOrRegister(
+    profile: {
+      provider: 'google' | 'apple';
+      subject: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+      emailVerified: boolean;
+    },
+    meta?: { userAgent?: string; ip?: string },
+  ) {
+    let user = await this.users.findByOAuth(profile.provider, profile.subject);
+
+    if (!user) {
+      const existing = await this.users.findByEmail(profile.email);
+      if (existing) {
+        if (existing.oauth_provider && existing.oauth_provider !== profile.provider) {
+          throw new ConflictError('This email is linked to a different sign-in method');
+        }
+        user = existing;
+        await withTransaction(async (client) => {
+          await client.query(
+            `UPDATE users SET oauth_provider = $1, oauth_subject = $2, email_verified = $3,
+             status = CASE WHEN $3 THEN 'active' ELSE status END, updated_at = now()
+             WHERE id = $4`,
+            [profile.provider, profile.subject, profile.emailVerified, user!.id],
+          );
+        });
+        user = (await this.users.findById(user.id))!;
+      } else {
+        user = await withTransaction(async (client) => {
+          const { rows } = await client.query<UserRow>(
+            `INSERT INTO users (first_name, last_name, email, password_hash, role, status, email_verified, oauth_provider, oauth_subject)
+             VALUES ($1, $2, $3, NULL, $4, $5, $6, $7, $8) RETURNING *`,
+            [
+              profile.firstName,
+              profile.lastName || 'User',
+              profile.email,
+              ROLES.PROFESSIONAL,
+              profile.emailVerified ? USER_STATUS.ACTIVE : USER_STATUS.PENDING,
+              profile.emailVerified,
+              profile.provider,
+              profile.subject,
+            ],
+          );
+          const created = rows[0];
+
+          await client.query(
+            `INSERT INTO healthcare_professionals (user_id) VALUES ($1)`,
+            [created.id],
+          );
+          await client.query(
+            `INSERT INTO subscriptions (user_id, plan, status) VALUES ($1, $2, 'active')`,
+            [created.id, SUBSCRIPTION_PLANS.FREE],
+          );
+          return created;
+        });
+
+        if (this.onProfessionalRegistered) {
+          await this.onProfessionalRegistered(user.id);
+        }
+      }
+    }
+
+    if (user.status === USER_STATUS.SUSPENDED) {
+      throw new UnauthorizedError('Account suspended. Contact support.');
+    }
+
+    const tokens = await this.issueTokens(user, meta);
+    return { user: await this.publicUser(user), ...tokens };
   }
 }

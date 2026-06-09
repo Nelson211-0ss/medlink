@@ -12,11 +12,13 @@ export function OrganizationLogoUpload({
   organizationName,
   onUploaded,
   className,
+  stacked,
 }: {
   logo?: string | null;
   organizationName?: string;
   onUploaded?: (url: string) => void;
   className?: string;
+  stacked?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(logo ?? null);
@@ -56,7 +58,14 @@ export function OrganizationLogoUpload({
   const initial = organizationName?.trim().charAt(0).toUpperCase() || 'O';
 
   return (
-    <div className={cn('flex flex-col items-center gap-3 sm:flex-row sm:items-center', className)}>
+    <div
+      className={cn(
+        'flex flex-col items-center gap-3',
+        !stacked && 'sm:flex-row sm:items-center',
+        stacked && 'text-center',
+        className,
+      )}
+    >
       <div className="relative">
         <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl border border-primary/15 bg-primary/5 ring-2 ring-primary/10">
           {preview ? (
@@ -74,7 +83,7 @@ export function OrganizationLogoUpload({
           </div>
         )}
       </div>
-      <div className="text-center sm:text-left">
+      <div className={cn('text-center', !stacked && 'sm:text-left')}>
         <p className="text-sm font-medium">Organization logo</p>
         <p className="text-xs text-muted-foreground">Shown on your job postings to professionals</p>
         <input

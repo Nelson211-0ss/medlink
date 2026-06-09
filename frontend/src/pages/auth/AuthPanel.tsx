@@ -12,6 +12,7 @@ import { Spinner } from '@/components/ui/misc';
 import { cn } from '@/lib/utils';
 import { useLogin, useRegister } from '@/hooks/useAuth';
 import { apiError } from '@/lib/api';
+import { AuthDivider, SocialAuthButtons } from '@/components/auth/SocialAuthButtons';
 
 const loginSchema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -64,11 +65,13 @@ export default function AuthPanel() {
   return (
     <div className="min-h-screen bg-white">
       {/* Mobile header */}
-      <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 lg:hidden">
-        <Link to="/">
-          <Logo />
-        </Link>
-        <div className="flex gap-2 rounded-full bg-slate-100 p-1 text-xs font-semibold">
+      <div className="border-b border-slate-100 px-6 py-5 lg:hidden">
+        <div className="mb-4 flex justify-center">
+          <Link to="/">
+            <Logo size="lg" />
+          </Link>
+        </div>
+        <div className="mx-auto flex w-fit gap-2 rounded-full bg-slate-100 p-1 text-xs font-semibold">
           <button
             type="button"
             onClick={() => setMode(false)}
@@ -137,13 +140,12 @@ export default function AuthPanel() {
 function FormShell({ children, title }: { children: React.ReactNode; title: string }) {
   return (
     <div className="w-full max-w-[340px]">
-      <Link to="/" className="mb-8 hidden lg:inline-block">
-        <Logo />
-      </Link>
-      <h1 className="text-center text-2xl font-bold text-primary lg:text-left">{title}</h1>
-      <p className="mt-1 hidden text-center text-sm text-slate-500 lg:block lg:text-left">
-        or use your email account
-      </p>
+      <div className="mb-8 hidden justify-center lg:flex">
+        <Link to="/">
+          <Logo size="lg" />
+        </Link>
+      </div>
+      <h1 className="text-center text-2xl font-bold text-primary">{title}</h1>
       <div className="mt-8">{children}</div>
     </div>
   );
@@ -201,8 +203,11 @@ function SignInForm({ mobile }: { mobile?: boolean }) {
 
   if (mobile) {
     return (
-      <form onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-[340px] space-y-4">
-        <h1 className="text-center text-2xl font-bold text-primary">Sign in to MediLink</h1>
+      <div className="mx-auto max-w-[340px]">
+        <h1 className="mb-6 text-center text-2xl font-bold text-primary">Sign in to MediLink</h1>
+        <SocialAuthButtons mode="login" />
+        <AuthDivider />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <AuthField
           icon={Mail}
           id="email"
@@ -236,12 +241,15 @@ function SignInForm({ mobile }: { mobile?: boolean }) {
         <Button type="submit" className="h-11 w-full rounded-full uppercase tracking-wide" disabled={login.isPending}>
           {login.isPending ? <Spinner /> : 'Sign in'}
         </Button>
-      </form>
+        </form>
+      </div>
     );
   }
 
   return (
     <FormShell title="Sign in to MediLink">
+      <SocialAuthButtons mode="login" />
+      <AuthDivider />
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <AuthField
           icon={Mail}
@@ -404,15 +412,21 @@ function SignUpForm({ mobile }: { mobile?: boolean }) {
 
   if (mobile) {
     return (
-      <form onSubmit={handleSubmit(onSubmit)} className="mx-auto max-w-[340px] space-y-3">
-        <h1 className="mb-4 text-center text-2xl font-bold text-primary">Create your account</h1>
-        {formBody}
-      </form>
+      <div className="mx-auto max-w-[340px]">
+        <h1 className="mb-6 text-center text-2xl font-bold text-primary">Create your account</h1>
+        <SocialAuthButtons mode="signup" />
+        <AuthDivider />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+          {formBody}
+        </form>
+      </div>
     );
   }
 
   return (
     <FormShell title="Create your account">
+      <SocialAuthButtons mode="signup" />
+      <AuthDivider />
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
         {formBody}
       </form>

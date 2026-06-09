@@ -30,6 +30,7 @@ import { MessageService } from './services/message.service';
 import { SubscriptionService } from './services/subscription.service';
 import { AdminService } from './services/admin.service';
 import { DashboardService } from './services/dashboard.service';
+import { OAuthService } from './services/oauth.service';
 
 // ---- repositories ----
 const userRepo = new UserRepository();
@@ -111,6 +112,8 @@ const dashboardService = new DashboardService(
   matchingService,
 );
 
+const oauthService = new OAuthService(authService);
+
 export const container = {
   repositories: {
     userRepo,
@@ -141,6 +144,7 @@ export const container = {
     subscriptionService,
     adminService,
     dashboardService,
+    oauthService,
   },
 };
 

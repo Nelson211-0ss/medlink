@@ -14,12 +14,15 @@ export function ProfilePhotoUpload({
   lastName,
   onUploaded,
   className,
+  stacked,
 }: {
   avatar?: string | null;
   firstName?: string;
   lastName?: string;
   onUploaded?: (url: string) => void;
   className?: string;
+  /** Vertical, centered layout for narrow sidebars */
+  stacked?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(avatar ?? null);
@@ -59,7 +62,14 @@ export function ProfilePhotoUpload({
   };
 
   return (
-    <div className={cn('flex flex-col items-center gap-3 sm:flex-row sm:items-center', className)}>
+    <div
+      className={cn(
+        'flex flex-col items-center gap-3',
+        !stacked && 'sm:flex-row sm:items-center',
+        stacked && 'text-center',
+        className,
+      )}
+    >
       <div className="relative">
         <Avatar
           src={preview}
@@ -73,7 +83,7 @@ export function ProfilePhotoUpload({
           </div>
         )}
       </div>
-      <div className="text-center sm:text-left">
+      <div className={cn('text-center', !stacked && 'sm:text-left')}>
         <p className="text-sm font-medium">Profile photo</p>
         <p className="text-xs text-muted-foreground">Visible to organizations searching for talent</p>
         <input

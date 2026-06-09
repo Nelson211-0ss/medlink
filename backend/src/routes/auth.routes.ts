@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authController } from '../controllers/auth.controller';
+import { oauthController } from '../controllers/oauth.controller';
 import { validate } from '../middleware/validate';
 import { authenticate } from '../middleware/authenticate';
 import {
@@ -20,5 +21,10 @@ router.get('/me', authenticate, authController.me);
 router.post('/verify-email', validate({ body: verifyEmailSchema }), authController.verifyEmail);
 router.post('/forgot-password', validate({ body: forgotPasswordSchema }), authController.forgotPassword);
 router.post('/reset-password', validate({ body: resetPasswordSchema }), authController.resetPassword);
+
+router.get('/oauth/google', oauthController.startGoogle);
+router.get('/oauth/google/callback', oauthController.googleCallback);
+router.get('/oauth/apple', oauthController.startApple);
+router.post('/oauth/apple/callback', oauthController.appleCallback);
 
 export default router;

@@ -23,6 +23,18 @@ export const avatars = {
 } as const;
 
 /** Hero slider — transparent PNG healthcare professional cutouts */
+/** Fallback portraits for professionals without uploaded photos */
+export const professionPortraits: Record<string, string> = {
+  nurse: u('1582750433449-648ed127bb54', 800),
+  doctor: u('1576091160550-2173dba999ef', 800),
+  pharmacist: u('1631549916764-24b4e7d9fbec', 800),
+  lab_technician: u('1579154201341-c85ac4a90e04', 800),
+  radiographer: u('1559839734-2b71ea197ec2', 800),
+  midwife: u('1559839734-2b71ea197ec2', 800),
+  physiotherapist: u('1576091160399-591ba48d9e1d', 800),
+  caregiver: u('1582750433449-648ed127bb54', 800),
+};
+
 export const nurseSlides = [
   {
     src: '/nurses/44989995_9110036.png',

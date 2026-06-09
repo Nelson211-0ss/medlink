@@ -7,7 +7,9 @@ export interface UserRow {
   email: string;
   phone: string | null;
   contact_email: string | null;
-  password_hash: string;
+  password_hash: string | null;
+  oauth_provider: string | null;
+  oauth_subject: string | null;
   role: Role;
   avatar: string | null;
   status: string;

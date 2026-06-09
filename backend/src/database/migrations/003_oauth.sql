@@ -1,0 +1,9 @@
+-- OAuth / social sign-in support
+ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS oauth_provider VARCHAR(20);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS oauth_subject VARCHAR(255);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oauth
+  ON users (oauth_provider, oauth_subject)
+  WHERE oauth_provider IS NOT NULL;
