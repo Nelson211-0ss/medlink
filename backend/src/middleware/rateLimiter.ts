@@ -16,16 +16,3 @@ export const globalRateLimiter = rateLimit({
   store,
   message: { success: false, error: { code: 'RATE_LIMITED', message: 'Too many requests' } },
 });
-
-/** Stricter limiter for auth-sensitive endpoints (login, register, reset). */
-export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-  store,
-  message: {
-    success: false,
-    error: { code: 'RATE_LIMITED', message: 'Too many authentication attempts' },
-  },
-});
