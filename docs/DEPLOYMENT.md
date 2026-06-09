@@ -1,4 +1,4 @@
-# MediNexus — Production Deployment Guide
+# MediLink — Production Deployment Guide
 
 ## 1. Prerequisites
 
@@ -28,7 +28,7 @@ APP_URL=https://api.yourdomain.com
 FRONTEND_URL=https://yourdomain.com
 CORS_ORIGINS=https://yourdomain.com
 
-DATABASE_URL=postgresql://USER:STRONG_PASSWORD@postgres:5432/medinexus
+DATABASE_URL=postgresql://USER:STRONG_PASSWORD@postgres:5432/medilink
 REDIS_URL=redis://:STRONG_REDIS_PASSWORD@redis:6379
 
 JWT_ACCESS_SECRET=<openssl rand -hex 32>
@@ -38,14 +38,14 @@ ELASTICSEARCH_NODE=http://elasticsearch:9200
 
 STORAGE_DRIVER=s3            # use AWS S3 in production
 AWS_REGION=us-east-1
-AWS_S3_BUCKET=medinexus-prod
+AWS_S3_BUCKET=medilink-prod
 
 SMTP_HOST=smtp.youremail.com
 SMTP_PORT=587
 SMTP_USER=...
 SMTP_PASSWORD=...
 SMTP_SECURE=true
-MAIL_FROM="MediNexus <no-reply@yourdomain.com>"
+MAIL_FROM="MediLink <no-reply@yourdomain.com>"
 
 STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...

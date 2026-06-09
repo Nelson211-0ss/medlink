@@ -1,5 +1,5 @@
 # ============================================================
-# MediNexus Frontend — multi-stage Dockerfile
+# MediLink Frontend — multi-stage Dockerfile
 # ============================================================
 
 FROM node:22-alpine AS base

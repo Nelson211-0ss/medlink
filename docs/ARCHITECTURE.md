@@ -1,4 +1,4 @@
-# MediNexus — System Architecture
+# MediLink — System Architecture
 
 ## High-level overview
 

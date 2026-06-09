@@ -22,12 +22,12 @@ jobs:
       postgres:
         image: postgres:15-alpine
         env:
-          POSTGRES_USER: medinexus
-          POSTGRES_PASSWORD: medinexus_secret
-          POSTGRES_DB: medinexus_test
+          POSTGRES_USER: medilink
+          POSTGRES_PASSWORD: medilink_secret
+          POSTGRES_DB: medilink_test
         ports: ['5432:5432']
         options: >-
-          --health-cmd "pg_isready -U medinexus"
+          --health-cmd "pg_isready -U medilink"
           --health-interval 10s --health-timeout 5s --health-retries 5
       redis:
         image: redis:7-alpine
@@ -35,7 +35,7 @@ jobs:
 
     env:
       NODE_ENV: test
-      DATABASE_URL: postgresql://medinexus:medinexus_secret@localhost:5432/medinexus_test
+      DATABASE_URL: postgresql://medilink:medilink_secret@localhost:5432/medilink_test
       REDIS_URL: redis://localhost:6379
       JWT_ACCESS_SECRET: ci_access_secret_value_123456
       JWT_REFRESH_SECRET: ci_refresh_secret_value_123456
@@ -84,11 +84,11 @@ jobs:
           context: ./backend
           target: production
           push: false
-          tags: medinexus-backend:ci
+          tags: medilink-backend:ci
       - name: Build frontend image
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
           target: production
           push: false
-          tags: medinexus-frontend:ci
+          tags: medilink-frontend:ci

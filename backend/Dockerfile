@@ -1,5 +1,5 @@
 # ============================================================
-# MediNexus Backend — multi-stage Dockerfile
+# MediLink Backend — multi-stage Dockerfile
 # ============================================================
 
 # ---- base ----

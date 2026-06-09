@@ -42,7 +42,7 @@ export const createApp = (): Express => {
   app.use(express.urlencoded({ extended: true }));
 
   // API docs
-  app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { customSiteTitle: 'MediNexus API' }));
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { customSiteTitle: 'MediLink API' }));
   app.get('/docs.json', (_req, res) => res.json(swaggerSpec));
 
   // Rate limiting + routes

@@ -5,8 +5,8 @@ import { logger } from './logger';
 export const esClient = new Client({ node: env.ELASTICSEARCH_NODE });
 
 export const ES_INDICES = {
-  professionals: 'medinexus_professionals',
-  jobs: 'medinexus_jobs',
+  professionals: 'medilink_professionals',
+  jobs: 'medilink_jobs',
 } as const;
 
 const professionalMapping = {

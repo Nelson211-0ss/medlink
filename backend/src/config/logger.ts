@@ -3,7 +3,7 @@ import { env, isProd } from './env';
 
 export const logger = pino({
   level: isProd ? 'info' : 'debug',
-  base: { service: 'medinexus-api' },
+  base: { service: 'medilink-api' },
   transport: isProd
     ? undefined
     : {

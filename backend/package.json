@@ -1,7 +1,7 @@
 {
-  "name": "medinexus-backend",
+  "name": "medilink-backend",
   "version": "1.0.0",
-  "description": "MediNexus — Healthcare workforce marketplace API",
+  "description": "MediLink — Healthcare workforce marketplace API",
   "main": "dist/server.js",
   "type": "commonjs",
   "engines": {

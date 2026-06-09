@@ -5,7 +5,7 @@ export const swaggerSpec = swaggerJsdoc({
   definition: {
     openapi: '3.0.3',
     info: {
-      title: 'MediNexus API',
+      title: 'MediLink API',
       version: '1.0.0',
       description:
         'Healthcare workforce marketplace API connecting professionals with organizations.',
@@ -36,7 +36,7 @@ export const swaggerSpec = swaggerJsdoc({
             reasons: {
               type: 'array',
               items: { type: 'string' },
-              example: ['ICU specialization', '5 years experience', 'Located in Kampala'],
+              example: ['ICU specialization', '5 years experience', 'Located in Boston, MA'],
             },
           },
         },

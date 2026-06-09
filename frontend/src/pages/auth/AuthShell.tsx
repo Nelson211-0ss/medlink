@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { Check } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { images } from '@/lib/images';
 
 export function AuthShell({
   title,
@@ -28,12 +30,29 @@ export function AuthShell({
           </div>
         </div>
       </div>
-      <div className="relative hidden gradient-hero lg:flex">
-        <div className="m-auto max-w-md p-12">
+
+      <div className="relative hidden overflow-hidden lg:block">
+        <img
+          src={images.authBackdrop}
+          alt="U.S. healthcare professionals at work"
+          className="absolute inset-0 h-full w-full object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-tr from-primary/90 via-primary/70 to-secondary/60" />
+        <div className="relative flex h-full flex-col justify-end p-12 text-primary-foreground">
           <blockquote className="text-2xl font-semibold leading-snug">
-            “MediNexus matched our ICU with three qualified nurses in under a week.”
+            “MediLink matched our ICU with three qualified RNs in under a week.”
           </blockquote>
-          <p className="mt-4 text-muted-foreground">— Director of Nursing, Grace Medical Center</p>
+          <p className="mt-4 text-primary-foreground/80">
+            — Director of Nursing, Grace Medical Center · Boston, MA
+          </p>
+          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-primary-foreground/90">
+            {['Verified state licenses', 'All 50 states', 'HIPAA-minded'].map((t) => (
+              <span key={t} className="inline-flex items-center gap-1.5">
+                <Check className="h-4 w-4" /> {t}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -36,7 +36,7 @@ export default function Login() {
   };
 
   return (
-    <AuthShell title="Sign in" subtitle="Welcome back to MediNexus">
+    <AuthShell title="Sign in" subtitle="Welcome back to MediLink">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
@@ -64,9 +64,9 @@ export default function Login() {
         </Link>
       </p>
       <div className="mt-6 rounded-lg border bg-muted/50 p-3 text-xs text-muted-foreground">
-        Demo: <span className="font-medium">admin@medinexus.health</span> ·{' '}
-        <span className="font-medium">org@medinexus.health</span> ·{' '}
-        <span className="font-medium">aisha@medinexus.health</span> — password{' '}
+        Demo: <span className="font-medium">admin@medilink.health</span> ·{' '}
+        <span className="font-medium">org@medilink.health</span> ·{' '}
+        <span className="font-medium">ashley@medilink.health</span> — password{' '}
         <span className="font-medium">Password123</span>
       </div>
     </AuthShell>

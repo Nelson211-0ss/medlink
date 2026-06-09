@@ -1,4 +1,4 @@
-# MediNexus — Deliverables Checklist
+# MediLink — Deliverables Checklist
 
 Legend: ✅ implemented · 🟡 scaffolded / partial (extensible) · ⬜ not started
 

@@ -32,7 +32,7 @@ const bootstrap = async () => {
   const timers = startJobs();
 
   httpServer.listen(env.PORT, () => {
-    logger.info(`🚀 MediNexus API listening on http://localhost:${env.PORT}${env.API_PREFIX}`);
+    logger.info(`🚀 MediLink API listening on http://localhost:${env.PORT}${env.API_PREFIX}`);
     logger.info(`📚 API docs at http://localhost:${env.PORT}/docs`);
   });
 

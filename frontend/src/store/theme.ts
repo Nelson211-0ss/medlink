@@ -20,6 +20,6 @@ export const useThemeStore = create<ThemeState>()(
         document.documentElement.classList.toggle('dark', get().theme === 'dark');
       },
     }),
-    { name: 'medinexus-theme' },
+    { name: 'medilink-theme' },
   ),
 );

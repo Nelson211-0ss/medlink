@@ -1,4 +1,4 @@
-# MediNexus — API Reference
+# MediLink — API Reference
 
 Base URL: `http://localhost:4000/api/v1`
 Interactive docs (Swagger UI): `http://localhost:4000/docs`

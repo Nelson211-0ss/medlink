@@ -1,5 +1,5 @@
 -- ============================================================
--- MediNexus — initial schema
+-- MediLink — initial schema
 -- ============================================================
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";

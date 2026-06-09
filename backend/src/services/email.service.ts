@@ -4,7 +4,7 @@ import { env } from '../config/env';
 const wrap = (title: string, body: string) => `
   <div style="font-family:Inter,Arial,sans-serif;background:#F8FAFC;padding:32px">
     <div style="max-width:560px;margin:auto;background:#fff;border-radius:12px;padding:32px;border:1px solid #E2E8F0">
-      <h1 style="color:#2563EB;font-size:20px;margin:0 0 16px">MediNexus</h1>
+      <h1 style="color:#2563EB;font-size:20px;margin:0 0 16px">MediLink</h1>
       <h2 style="color:#1E293B;font-size:18px;margin:0 0 12px">${title}</h2>
       <div style="color:#475569;font-size:14px;line-height:1.6">${body}</div>
       <p style="color:#94A3B8;font-size:12px;margin-top:24px">
@@ -21,8 +21,8 @@ export class EmailService {
   async sendWelcome(to: string, name: string): Promise<void> {
     await sendMail({
       to,
-      subject: 'Welcome to MediNexus',
-      html: wrap('Welcome aboard', `<p>Hi ${name}, your MediNexus account has been created.</p>`),
+      subject: 'Welcome to MediLink',
+      html: wrap('Welcome aboard', `<p>Hi ${name}, your MediLink account has been created.</p>`),
     });
   }
 
@@ -69,7 +69,7 @@ export class EmailService {
       subject: `${orgName} invited you to apply`,
       html: wrap(
         'New invitation',
-        `<p>Hi ${name}, <strong>${orgName}</strong> has invited you to connect on MediNexus.</p>
+        `<p>Hi ${name}, <strong>${orgName}</strong> has invited you to connect on MediLink.</p>
          ${button(`${env.FRONTEND_URL}/invitations`, 'View invitation')}`,
       ),
     });

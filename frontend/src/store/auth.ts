@@ -31,6 +31,6 @@ export const useAuthStore = create<AuthState>()(
       setUser: (user) => set({ user }),
       clear: () => set({ user: null, accessToken: null }),
     }),
-    { name: 'medinexus-auth' },
+    { name: 'medilink-auth' },
   ),
 );

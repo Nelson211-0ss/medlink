@@ -1,6 +1,6 @@
-# MediNexus — Connecting Healthcare Talent with Opportunity
+# MediLink — Connecting Healthcare Talent with Opportunity
 
-MediNexus is a full-stack, enterprise-grade **healthcare workforce marketplace**. It connects
+MediLink is a full-stack, enterprise-grade **healthcare workforce marketplace**. It connects
 healthcare professionals (nurses, doctors, pharmacists, lab technicians, radiographers, midwives,
 physiotherapists, caregivers, …) with healthcare organizations (hospitals, clinics, NGOs, nursing
 homes, telemedicine providers, research institutions).
@@ -44,7 +44,7 @@ healthcare recruitment.
 ## 📁 Monorepo structure
 
 ```
-MediNexus/
+MediLink/
 ├── backend/                  # Express + TypeScript API
 │   └── src/
 │       ├── modules/          # Feature route registry
@@ -121,9 +121,9 @@ npm run dev          # http://localhost:5173
 
 | Role         | Email                       | Password     |
 |--------------|-----------------------------|--------------|
-| Admin        | admin@medinexus.health      | Password123  |
-| Organization | org@medinexus.health        | Password123  |
-| Professional | aisha@medinexus.health      | Password123  |
+| Admin        | admin@medilink.health      | Password123  |
+| Organization | org@medilink.health        | Password123  |
+| Professional | ashley@medilink.health      | Password123  |
 
 ## 🧪 Testing
 
