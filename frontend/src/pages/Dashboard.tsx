@@ -23,11 +23,14 @@ import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { DashboardStatCard } from '@/components/DashboardStatCard';
 import { RevenueSnapshotChart } from '@/components/RevenueSnapshotChart';
 import {
+  DASHBOARD_COLOR_LIST,
+  DASHBOARD_COLORS,
   DonutChart,
   HorizontalBarChart,
   InsightTile,
   PIPELINE_STAGE_COLORS,
   PipelineBreakdownChart,
+  VerticalBarChart,
 } from '@/components/dashboard/Charts';
 import { titleCase } from '@/lib/utils';
 
@@ -122,12 +125,12 @@ function ProfessionalDashboard({ d }: { d: ProDash }) {
         <DashboardStatCard icon={CheckCircle2} label="Offers received" numeric={d.offersReceived ?? 0} colorIndex={7} />
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-3">
-        <Card className="dash-panel">
+      <div className="grid gap-3 lg:grid-cols-3 lg:items-stretch">
+        <Card className="dash-panel flex flex-col">
           <CardHeader className="p-4 pb-2">
             <CardTitle className="text-base">Application pipeline</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0">
+          <CardContent className="flex flex-1 flex-col justify-center p-4 pt-0">
             {d.applications > 0 ? (
               <HorizontalBarChart items={pipelineToChartItemsAll(d.applicationPipeline ?? {})} />
             ) : (
@@ -136,17 +139,19 @@ function ProfessionalDashboard({ d }: { d: ProDash }) {
           </CardContent>
         </Card>
 
-        <Card className="dash-panel">
+        <Card className="dash-panel flex flex-col">
           <CardHeader className="p-4 pb-2">
             <CardTitle className="text-base">Top match scores</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 pt-0">
+          <CardContent className="flex flex-1 flex-col justify-center p-4 pt-0">
             {d.recommendedJobs?.length ? (
-              <VerticalBarChart
+              <HorizontalBarChart
+                valueSuffix="%"
+                labelClassName="normal-case"
                 items={d.recommendedJobs.slice(0, 5).map((m, i) => ({
-                  label: m.job.title.split(' ').slice(0, 2).join(' '),
+                  label: m.job.title.length > 22 ? `${m.job.title.slice(0, 21)}…` : m.job.title,
                   value: m.matchScore,
-                  color: ['#2563eb', '#059669', '#d97706', '#7c3aed', '#e11d48'][i],
+                  color: DASHBOARD_COLOR_LIST[i % DASHBOARD_COLOR_LIST.length],
                 }))}
               />
             ) : (
@@ -155,17 +160,17 @@ function ProfessionalDashboard({ d }: { d: ProDash }) {
           </CardContent>
         </Card>
 
-        <Card className="dash-panel">
+        <Card className="dash-panel flex flex-col">
           <CardHeader className="p-4 pb-2">
             <CardTitle className="text-base">Career insights</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 p-4 pt-0">
+          <CardContent className="flex flex-1 flex-col justify-center space-y-3 p-4 pt-0">
             <DonutChart
               centerLabel={`${d.profileCompletion}%`}
               centerSub="profile"
               segments={[
-                { label: 'Complete', value: d.profileCompletion },
-                { label: 'Remaining', value: Math.max(100 - d.profileCompletion, 0) },
+                { label: 'Complete', value: d.profileCompletion, color: DASHBOARD_COLORS.green },
+                { label: 'Remaining', value: Math.max(100 - d.profileCompletion, 0), color: DASHBOARD_COLORS.orange },
               ]}
             />
             <div className="grid grid-cols-2 gap-2">
@@ -283,9 +288,9 @@ function OrganizationDashboard({ d }: { d: OrgDash }) {
               centerLabel={`${hireRate}%`}
               centerSub="hired"
               segments={[
-                { label: 'Hired', value: hired, color: '#059669' },
-                { label: 'In progress', value: Math.max(pipelineTotal - hired - (d.pipeline?.rejected ?? 0), 0), color: '#2563eb' },
-                { label: 'Rejected', value: d.pipeline?.rejected ?? 0, color: '#e11d48' },
+                { label: 'Hired', value: hired, color: DASHBOARD_COLORS.green },
+                { label: 'In progress', value: Math.max(pipelineTotal - hired - (d.pipeline?.rejected ?? 0), 0), color: DASHBOARD_COLORS.blue },
+                { label: 'Rejected', value: d.pipeline?.rejected ?? 0, color: DASHBOARD_COLORS.red },
               ]}
             />
             <div className="grid grid-cols-2 gap-2">
@@ -349,11 +354,11 @@ function AdminDashboard({ d }: { d: AdminStats }) {
           <CardContent className="p-4 pt-0">
             <VerticalBarChart
               items={[
-                { label: 'Users', value: d.totalUsers, color: '#2563eb' },
-                { label: 'Pros', value: d.totalProfessionals, color: '#059669' },
-                { label: 'Orgs', value: d.totalOrganizations, color: '#d97706' },
-                { label: 'Jobs', value: d.activeJobs, color: '#7c3aed' },
-                { label: 'Apps', value: d.totalApplications ?? 0, color: '#0891b2' },
+                { label: 'Users', value: d.totalUsers, color: DASHBOARD_COLORS.blue },
+                { label: 'Pros', value: d.totalProfessionals, color: DASHBOARD_COLORS.green },
+                { label: 'Orgs', value: d.totalOrganizations, color: DASHBOARD_COLORS.orange },
+                { label: 'Jobs', value: d.activeJobs, color: DASHBOARD_COLORS.red },
+                { label: 'Apps', value: d.totalApplications ?? 0, color: DASHBOARD_COLORS.blue },
               ]}
             />
           </CardContent>
@@ -366,10 +371,10 @@ function AdminDashboard({ d }: { d: AdminStats }) {
           <CardContent className="space-y-3 p-4 pt-0">
             <HorizontalBarChart
               items={[
-                { label: 'Professionals', value: d.totalProfessionals, color: '#2563eb' },
-                { label: 'Organizations', value: d.totalOrganizations, color: '#059669' },
-                { label: 'Verified pros', value: d.verifiedProfessionals, color: '#7c3aed' },
-                { label: 'Paid subs', value: d.paidSubscriptions, color: '#d97706' },
+                { label: 'Professionals', value: d.totalProfessionals, color: DASHBOARD_COLORS.blue },
+                { label: 'Organizations', value: d.totalOrganizations, color: DASHBOARD_COLORS.green },
+                { label: 'Verified pros', value: d.verifiedProfessionals, color: DASHBOARD_COLORS.orange },
+                { label: 'Paid subs', value: d.paidSubscriptions, color: DASHBOARD_COLORS.red },
               ]}
             />
           </CardContent>
@@ -384,8 +389,8 @@ function AdminDashboard({ d }: { d: AdminStats }) {
               centerLabel={`${verificationRate}%`}
               centerSub="verified"
               segments={[
-                { label: 'Verified', value: d.verifiedProfessionals, color: '#059669' },
-                { label: 'Unverified', value: d.unverifiedProfessionals ?? Math.max(d.totalProfessionals - d.verifiedProfessionals, 0), color: '#94a3b8' },
+                { label: 'Verified', value: d.verifiedProfessionals, color: DASHBOARD_COLORS.green },
+                { label: 'Unverified', value: d.unverifiedProfessionals ?? Math.max(d.totalProfessionals - d.verifiedProfessionals, 0), color: DASHBOARD_COLORS.orange },
               ]}
             />
             <div className="grid grid-cols-2 gap-2">

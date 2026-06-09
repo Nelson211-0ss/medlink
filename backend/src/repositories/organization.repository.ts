@@ -9,6 +9,13 @@ export class OrganizationRepository extends BaseRepository<OrganizationRow> {
     return this.findOne({ user_id: userId });
   }
 
+  async updateLogo(orgId: string, objectName: string): Promise<void> {
+    await query('UPDATE organizations SET logo = $1, updated_at = now() WHERE id = $2', [
+      objectName,
+      orgId,
+    ]);
+  }
+
   async count(): Promise<number> {
     const { rows } = await query<{ count: string }>(
       'SELECT COUNT(*)::text AS count FROM organizations',

@@ -78,9 +78,9 @@ const professionalService = new ProfessionalService(
   },
 );
 
-const organizationService = new OrganizationService(organizationRepo);
+const organizationService = new OrganizationService(organizationRepo, fileService);
 const matchingService = new MatchingService(matchRepo, professionalRepo, jobRepo);
-const jobService = new JobService(jobRepo, organizationRepo, searchService);
+const jobService = new JobService(jobRepo, organizationRepo, searchService, fileService);
 
 const applicationService = new ApplicationService(
   applicationRepo,

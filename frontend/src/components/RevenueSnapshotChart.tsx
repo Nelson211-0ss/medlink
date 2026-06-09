@@ -7,7 +7,9 @@ interface RevenueSnapshotChartProps {
   totalUsers: number;
 }
 
-const BAR_COLORS = ['#2563eb', '#059669', '#7c3aed'] as const;
+import { DASHBOARD_COLORS } from '@/components/dashboard/Charts';
+
+const BAR_COLORS = [DASHBOARD_COLORS.blue, DASHBOARD_COLORS.green, DASHBOARD_COLORS.orange] as const;
 
 export function RevenueSnapshotChart({
   estimatedMRR,
@@ -94,7 +96,7 @@ export function RevenueSnapshotChart({
           <div
             className="relative flex h-28 w-28 items-center justify-center rounded-full"
             style={{
-              background: `conic-gradient(#2563eb 0% ${paidPct}%, #94a3b8 ${paidPct}% 100%)`,
+              background: `conic-gradient(${DASHBOARD_COLORS.blue} 0% ${paidPct}%, ${DASHBOARD_COLORS.orange} ${paidPct}% 100%)`,
             }}
             role="img"
             aria-label={`Paid users ${paidPct} percent`}

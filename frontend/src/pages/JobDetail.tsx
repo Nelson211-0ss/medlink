@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Briefcase, Building2, Calendar, MapPin, Users } from 'lucide-react';
+import { Briefcase, Calendar, MapPin, Users } from 'lucide-react';
+import { OrganizationBadge } from '@/components/OrganizationBadge';
 import { api, ApiEnvelope, apiError } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +31,7 @@ interface Job {
   expires_at?: string | null;
   organization_name?: string;
   organization_type?: string | null;
+  organization_logo?: string | null;
 }
 
 function formatDeadline(date?: string | null) {
@@ -72,13 +74,13 @@ export default function JobDetail() {
           <CardContent className="space-y-4 p-6">
             <h1 className="text-2xl font-bold">{job.title}</h1>
             {job.organization_name && user.role !== 'organization' && (
-              <p className="inline-flex items-center gap-1.5 text-base font-medium text-primary">
-                <Building2 className="h-5 w-5" />
-                {job.organization_name}
-                {job.organization_type && (
-                  <span className="font-normal text-muted-foreground">· {titleCase(job.organization_type)}</span>
-                )}
-              </p>
+              <OrganizationBadge
+                name={job.organization_name}
+                logo={job.organization_logo}
+                type={job.organization_type}
+                logoClassName="h-10 w-10 rounded-lg"
+                nameClassName="text-base"
+              />
             )}
             <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
               {job.profession && (

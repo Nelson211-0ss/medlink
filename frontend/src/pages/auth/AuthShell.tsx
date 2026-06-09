@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { images } from '@/lib/images';
@@ -8,52 +8,70 @@ export function AuthShell({
   title,
   subtitle,
   children,
+  compact,
+  tall,
 }: {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
+  compact?: boolean;
+  tall?: boolean;
 }) {
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="flex flex-col p-8">
+    <div className="relative min-h-screen overflow-hidden">
+      <img
+        src={images.authBackdrop}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 h-full w-full object-cover"
+        loading="eager"
+      />
+      <div className="absolute inset-0 bg-slate-950/75" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-slate-950/30" />
+
+      <div className="relative flex min-h-screen flex-col px-6 py-6 sm:px-10">
         <div className="flex items-center justify-between">
-          <Link to="/">
-            <Logo />
+          <Link to="/" className="transition-opacity hover:opacity-80">
+            <Logo className="[&_span]:text-white" />
           </Link>
           <ThemeToggle />
         </div>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-md animate-fade-in">
-            <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-            {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
-            <div className="mt-6">{children}</div>
-          </div>
-        </div>
-      </div>
 
-      <div className="relative hidden overflow-hidden lg:block">
-        <img
-          src={images.authBackdrop}
-          alt="U.S. healthcare professionals at work"
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-tr from-primary/95 via-primary/80 to-primary/60" />
-        <div className="relative flex h-full flex-col justify-end p-12 text-primary-foreground">
-          <blockquote className="text-2xl font-semibold leading-snug">
-            “MediLink matched our ICU with three qualified RNs in under a week.”
-          </blockquote>
-          <p className="mt-4 text-primary-foreground/80">
-            — Director of Nursing, Grace Medical Center · Boston, MA
-          </p>
-          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-primary-foreground/90">
-            {['Verified state licenses', 'All 50 states', 'HIPAA-minded'].map((t) => (
-              <span key={t} className="inline-flex items-center gap-1.5">
-                <Check className="h-4 w-4" /> {t}
-              </span>
-            ))}
+        <div className="flex flex-1 items-center justify-center py-10">
+          <div className={`w-full animate-fade-in ${compact ? 'max-w-[300px]' : 'max-w-[420px]'}`}>
+            <div
+              className={`rounded-2xl border border-white/20 bg-white/95 shadow-2xl backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-900/95 ${
+                tall ? 'px-6 py-10 sm:px-8 sm:py-12' : compact ? 'p-5 sm:p-6' : 'p-6 sm:p-8'
+              }`}
+            >
+              <div
+                className={`space-y-2 text-center ${tall ? 'mb-8' : compact ? 'mb-5' : 'mb-8'}`}
+              >
+                <div className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+                  <Sparkles className="h-3 w-3" />
+                  Healthcare workforce platform
+                </div>
+                <h1
+                  className={`font-bold tracking-tight text-slate-900 dark:text-white ${
+                    tall ? 'text-2xl sm:text-3xl' : compact ? 'text-xl' : 'text-3xl sm:text-[2rem]'
+                  }`}
+                >
+                  {title}
+                </h1>
+                {subtitle && (
+                  <p className={`text-slate-500 dark:text-slate-400 ${compact ? 'text-sm' : 'text-base'}`}>
+                    {subtitle}
+                  </p>
+                )}
+              </div>
+              {children}
+            </div>
           </div>
         </div>
+
+        <p className="pb-2 text-center text-xs text-white/40">
+          © {new Date().getFullYear()} MediLink · HIPAA-minded · All 50 states
+        </p>
       </div>
     </div>
   );

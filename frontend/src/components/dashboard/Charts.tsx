@@ -1,16 +1,30 @@
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { cn } from '@/lib/utils';
 
-const CHART_COLORS = ['#2563eb', '#059669', '#d97706', '#7c3aed', '#e11d48', '#0891b2', '#64748b'] as const;
+export const DASHBOARD_COLORS = {
+  blue: '#2563eb',
+  green: '#16a34a',
+  orange: '#ea580c',
+  red: '#dc2626',
+} as const;
+
+export const DASHBOARD_COLOR_LIST = [
+  DASHBOARD_COLORS.blue,
+  DASHBOARD_COLORS.green,
+  DASHBOARD_COLORS.orange,
+  DASHBOARD_COLORS.red,
+] as const;
+
+const CHART_COLORS = DASHBOARD_COLOR_LIST;
 
 /** Consistent recruitment pipeline colors across org dashboard charts */
 export const PIPELINE_STAGE_COLORS: Record<string, string> = {
-  applied: '#2563eb',
-  screening: '#0891b2',
-  interview: '#d97706',
-  offer: '#7c3aed',
-  hired: '#059669',
-  rejected: '#e11d48',
+  applied: DASHBOARD_COLORS.blue,
+  screening: DASHBOARD_COLORS.orange,
+  interview: DASHBOARD_COLORS.orange,
+  offer: DASHBOARD_COLORS.green,
+  hired: DASHBOARD_COLORS.green,
+  rejected: DASHBOARD_COLORS.red,
 };
 
 export interface ChartItem {
@@ -23,10 +37,14 @@ export function HorizontalBarChart({
   items,
   className,
   showValues = true,
+  valueSuffix = '',
+  labelClassName,
 }: {
   items: ChartItem[];
   className?: string;
   showValues?: boolean;
+  valueSuffix?: string;
+  labelClassName?: string;
 }) {
   const max = Math.max(...items.map((i) => i.value), 1);
 
@@ -36,12 +54,17 @@ export function HorizontalBarChart({
         const pct = (item.value / max) * 100;
         const color = item.color ?? CHART_COLORS[i % CHART_COLORS.length];
         return (
-          <div key={item.label}>
-            <div className="mb-1 flex items-center justify-between text-xs">
-              <span className="capitalize text-slate-600 dark:text-slate-400">{item.label}</span>
+          <div key={`${item.label}-${i}`}>
+            <div className="mb-1 flex items-center justify-between gap-2 text-xs">
+              <span
+                className={cn('truncate text-slate-600 dark:text-slate-400', labelClassName ?? 'capitalize')}
+                title={item.label}
+              >
+                {item.label}
+              </span>
               {showValues && (
-                <span className="font-semibold text-slate-900 dark:text-white">
-                  <AnimatedCounter end={item.value} />
+                <span className="shrink-0 font-semibold text-slate-900 dark:text-white">
+                  <AnimatedCounter end={item.value} suffix={valueSuffix} />
                 </span>
               )}
             </div>
@@ -62,40 +85,56 @@ export function VerticalBarChart({
   items,
   className,
   height = 120,
+  maxBarWidth = 48,
+  compact = false,
 }: {
   items: ChartItem[];
   className?: string;
   height?: number;
+  maxBarWidth?: number;
+  compact?: boolean;
 }) {
   const max = Math.max(...items.map((i) => i.value), 1);
-  const barWidth = Math.min(48, Math.max(28, 240 / Math.max(items.length, 1)));
+  const gap = compact ? 10 : 16;
+  const barWidth = Math.min(maxBarWidth, Math.max(compact ? 16 : 20, 240 / Math.max(items.length, 1)));
+  const labelSize = compact ? 7 : 9;
+  const valueSize = compact ? 8 : 10;
+  const bottomPad = compact ? 18 : 28;
 
   return (
     <svg
-      viewBox={`0 0 ${items.length * (barWidth + 16) + 16} ${height + 28}`}
-      className={cn('w-full', className)}
+      viewBox={`0 0 ${items.length * (barWidth + gap) + 16} ${height + bottomPad}`}
+      className={cn('w-full', compact && 'max-h-[88px]', className)}
       style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
       role="img"
       aria-label="Bar chart"
     >
       {items.map((item, i) => {
-        const barHeight = Math.max((item.value / max) * (height - 12), item.value > 0 ? 6 : 2);
-        const x = 16 + i * (barWidth + 16);
+        const barHeight = Math.max((item.value / max) * (height - 8), item.value > 0 ? (compact ? 4 : 6) : 2);
+        const x = 8 + i * (barWidth + gap);
         const y = height - barHeight;
         const color = item.color ?? CHART_COLORS[i % CHART_COLORS.length];
+        const labelMax = compact ? 6 : 8;
         return (
           <g key={item.label}>
-            <rect x={x} y={y} width={barWidth} height={barHeight} rx={4} fill={color} opacity={0.9} />
-            <text x={x + barWidth / 2} y={height + 14} textAnchor="middle" fill="#64748b" fontSize={9}>
-              {item.label.length > 8 ? `${item.label.slice(0, 7)}…` : item.label}
+            <rect x={x} y={y} width={barWidth} height={barHeight} rx={compact ? 3 : 4} fill={color} opacity={0.9} />
+            <text x={x + barWidth / 2} y={height + (compact ? 10 : 14)} textAnchor="middle" fill="#64748b" fontSize={labelSize}>
+              {item.label.length > labelMax ? `${item.label.slice(0, labelMax - 1)}…` : item.label}
             </text>
-            <text x={x + barWidth / 2} y={y - 4} textAnchor="middle" fill="#334155" fontSize={10} fontWeight={600}>
+            <text
+              x={x + barWidth / 2}
+              y={y - (compact ? 2 : 4)}
+              textAnchor="middle"
+              fill="#334155"
+              fontSize={valueSize}
+              fontWeight={600}
+            >
               {item.value}
             </text>
           </g>
         );
       })}
-      <line x1="8" y1={height} x2={items.length * (barWidth + 16) + 8} y2={height} stroke="#e2e8f0" strokeWidth="1" />
+      <line x1="4" y1={height} x2={items.length * (barWidth + gap) + 8} y2={height} stroke="#e2e8f0" strokeWidth="1" />
     </svg>
   );
 }

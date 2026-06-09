@@ -82,32 +82,16 @@
     @apply bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400;
   }
 
-  .dash-stat-icon-emerald {
-    @apply bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400;
-  }
-
-  .dash-stat-icon-amber {
-    @apply bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400;
-  }
-
-  .dash-stat-icon-violet {
-    @apply bg-violet-100 text-violet-600 dark:bg-violet-950 dark:text-violet-400;
-  }
-
-  .dash-stat-icon-rose {
-    @apply bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400;
-  }
-
-  .dash-stat-icon-cyan {
-    @apply bg-cyan-100 text-cyan-600 dark:bg-cyan-950 dark:text-cyan-400;
+  .dash-stat-icon-green {
+    @apply bg-green-100 text-green-600 dark:bg-green-950 dark:text-green-400;
   }
 
   .dash-stat-icon-orange {
     @apply bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-400;
   }
 
-  .dash-stat-icon-indigo {
-    @apply bg-indigo-100 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400;
+  .dash-stat-icon-red {
+    @apply bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400;
   }
 
   .dash-panel {

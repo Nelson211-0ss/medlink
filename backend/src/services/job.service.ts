@@ -1,6 +1,7 @@
-import { JobRepository } from '../repositories/job.repository';
+import { JobRepository, JobWithOrganization } from '../repositories/job.repository';
 import { OrganizationRepository } from '../repositories/organization.repository';
 import { SearchService } from './search.service';
+import { FileService } from './file.service';
 import { ForbiddenError, NotFoundError } from '../utils/errors';
 import { ROLES } from '../utils/constants';
 import { PaginationParams } from '../utils/pagination';
@@ -11,7 +12,19 @@ export class JobService {
     private jobs: JobRepository,
     private organizations: OrganizationRepository,
     private search: SearchService,
+    private files: FileService,
   ) {}
+
+  private async enrichJob(job: JobWithOrganization) {
+    return {
+      ...job,
+      organization_logo: await this.files.resolveUrl(job.organization_logo),
+    };
+  }
+
+  private async enrichJobs(jobs: JobWithOrganization[]) {
+    return Promise.all(jobs.map((job) => this.enrichJob(job)));
+  }
 
   private normalizeJobPayload(data: Record<string, unknown>) {
     const payload = { ...data };
@@ -50,16 +63,17 @@ export class JobService {
       const org = await this.organizations.findByUserId(userId);
       if (!org) throw new ForbiddenError('Organization profile required');
       const rows = await this.jobs.listByOrganization(org.id, filters);
-      return { rows, total: rows.length };
+      return { rows: await this.enrichJobs(rows), total: rows.length };
     }
-    return this.jobs.listOpen(p, filters);
+    const { rows, total } = await this.jobs.listOpen(p, filters);
+    return { rows: await this.enrichJobs(rows), total };
   }
 
   async getById(id: string, opts: { incrementViews?: boolean } = {}) {
     const job = await this.jobs.findByIdWithOrganization(id);
     if (!job) throw new NotFoundError('Job not found');
     if (opts.incrementViews) await this.jobs.incrementViews(id);
-    return job;
+    return this.enrichJob(job);
   }
 
   async listForOrganization(
@@ -68,7 +82,8 @@ export class JobService {
   ) {
     const org = await this.organizations.findByUserId(userId);
     if (!org) throw new ForbiddenError('Organization profile required');
-    return this.jobs.listByOrganization(org.id, filters);
+    const rows = await this.jobs.listByOrganization(org.id, filters);
+    return this.enrichJobs(rows);
   }
 
   private async assertOwner(userId: string, jobId: string): Promise<JobRow> {

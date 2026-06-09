@@ -3,13 +3,9 @@ import { cn } from '@/lib/utils';
 
 const ICON_STYLES = [
   'dash-stat-icon-blue',
-  'dash-stat-icon-emerald',
-  'dash-stat-icon-amber',
-  'dash-stat-icon-violet',
-  'dash-stat-icon-rose',
-  'dash-stat-icon-cyan',
+  'dash-stat-icon-green',
   'dash-stat-icon-orange',
-  'dash-stat-icon-indigo',
+  'dash-stat-icon-red',
 ] as const;
 
 export function DashboardStatCard({

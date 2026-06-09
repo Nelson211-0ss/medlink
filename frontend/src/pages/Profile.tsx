@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input, Label, Select, Textarea } from '@/components/ui/input';
 import { PageLoader, Progress, Spinner } from '@/components/ui/misc';
 import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
+import { OrganizationLogoUpload } from '@/components/OrganizationLogoUpload';
 
 const professions = ['nurse', 'doctor', 'pharmacist', 'lab_technician', 'radiographer', 'midwife', 'physiotherapist', 'caregiver'];
 const availabilities = ['full_time', 'part_time', 'contract', 'locum', 'remote'];
@@ -75,6 +76,21 @@ export default function Profile() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold tracking-tight">My profile</h1>
+
+      {isOrg && (
+        <Card>
+          <CardContent className="p-5">
+            <OrganizationLogoUpload
+              logo={form.logo as string | null}
+              organizationName={form.organization_name as string}
+              onUploaded={(url) => {
+                setForm((f) => ({ ...f, logo: url }));
+                qc.invalidateQueries({ queryKey: ['jobs'] });
+              }}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {isPro && (
         <Card>

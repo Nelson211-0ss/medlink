@@ -239,28 +239,28 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="container py-20">
-        <div className="rounded-2xl bg-primary px-8 py-14 text-center text-white">
-          <h2 className="mx-auto max-w-2xl text-3xl font-bold">Ready to transform your healthcare career or team?</h2>
-          <p className="mx-auto mt-4 max-w-xl text-white/80">
+      <footer className="bg-primary text-primary-foreground">
+        <div className="container px-6 py-16 text-center sm:px-8 sm:py-20">
+          <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            Ready to transform your healthcare career or team?
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-base text-white/85 sm:text-lg">
             Join thousands of U.S. professionals and facilities already hiring smarter on MediLink.
           </p>
           <Button
             size="lg"
-            variant="outline"
-            className="mt-8 border-white bg-white text-primary hover:bg-white/90"
+            className="mt-8 border-0 bg-white text-primary shadow-lg hover:bg-white/90"
             asChild
           >
             <Link to="/register">Create your free account</Link>
           </Button>
         </div>
-      </section>
 
-      <footer className="border-t border-primary/10 py-8">
-        <div className="container flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground sm:flex-row">
-          <Logo />
-          <p>© {new Date().getFullYear()} MediLink. Connecting healthcare talent with opportunity.</p>
+        <div className="border-t border-white/20">
+          <div className="container flex flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-white/75 sm:flex-row sm:px-8">
+            <Logo className="[&>div]:bg-white [&>div]:text-primary [&_span]:text-white" />
+            <p>© {new Date().getFullYear()} MediLink. Connecting healthcare talent with opportunity.</p>
+          </div>
         </div>
       </footer>
     </div>

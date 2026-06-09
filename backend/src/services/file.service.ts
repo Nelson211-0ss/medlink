@@ -3,7 +3,7 @@ import { minioClient, minioPublicClient, STORAGE_BUCKET } from '../config/storag
 import { ALLOWED_UPLOAD_MIME, MAX_UPLOAD_BYTES } from '../utils/constants';
 import { BadRequestError } from '../utils/errors';
 
-export type UploadKind = 'avatar' | 'cv' | 'certificate' | 'license' | 'message';
+export type UploadKind = 'avatar' | 'cv' | 'certificate' | 'license' | 'message' | 'logo';
 
 export class FileService {
   validate(file: { mimetype: string; size: number }) {

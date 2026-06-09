@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Briefcase, Building2, Calendar, MapPin, Plus, Search, Trash2 } from 'lucide-react';
+import { Briefcase, Calendar, MapPin, Plus, Search, Trash2 } from 'lucide-react';
+import { OrganizationBadge } from '@/components/OrganizationBadge';
 import { api, ApiEnvelope, apiError } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
 import { Card, CardContent } from '@/components/ui/card';
@@ -27,6 +28,7 @@ interface Job {
   expires_at?: string | null;
   organization_name?: string;
   organization_type?: string | null;
+  organization_logo?: string | null;
   created_at: string;
 }
 
@@ -149,13 +151,12 @@ function ProfessionalJobCard({ job }: { job: Job }) {
           <div className="space-y-2">
             <h3 className="text-lg font-semibold">{job.title}</h3>
             {job.organization_name && (
-              <p className="inline-flex items-center gap-1.5 text-sm font-medium text-primary">
-                <Building2 className="h-4 w-4" />
-                {job.organization_name}
-                {job.organization_type && (
-                  <span className="font-normal text-muted-foreground">· {titleCase(job.organization_type)}</span>
-                )}
-              </p>
+              <OrganizationBadge
+                name={job.organization_name}
+                logo={job.organization_logo}
+                type={job.organization_type}
+                nameClassName="text-sm"
+              />
             )}
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               {job.profession && (

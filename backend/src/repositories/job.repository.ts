@@ -6,6 +6,7 @@ import { PaginationParams } from '../utils/pagination';
 export type JobWithOrganization = JobRow & {
   organization_name: string;
   organization_type?: string | null;
+  organization_logo?: string | null;
 };
 
 type JobFilters = { profession?: string; country?: string; q?: string };
@@ -56,7 +57,7 @@ export class JobRepository extends BaseRepository<JobRow> {
 
     params.push(p.limit, p.offset);
     const { rows } = await query<JobWithOrganization>(
-      `SELECT j.*, o.organization_name, o.organization_type
+      `SELECT j.*, o.organization_name, o.organization_type, o.logo AS organization_logo
        FROM jobs j
        INNER JOIN organizations o ON o.id = j.organization_id
        WHERE ${where}
@@ -88,7 +89,7 @@ export class JobRepository extends BaseRepository<JobRow> {
     }
     const where = conditions.join(' AND ');
     const { rows } = await query<JobWithOrganization>(
-      `SELECT j.*, o.organization_name, o.organization_type
+      `SELECT j.*, o.organization_name, o.organization_type, o.logo AS organization_logo
        FROM jobs j
        INNER JOIN organizations o ON o.id = j.organization_id
        WHERE ${where}
@@ -100,7 +101,7 @@ export class JobRepository extends BaseRepository<JobRow> {
 
   async findByIdWithOrganization(id: string): Promise<JobWithOrganization | null> {
     const { rows } = await query<JobWithOrganization>(
-      `SELECT j.*, o.organization_name, o.organization_type
+      `SELECT j.*, o.organization_name, o.organization_type, o.logo AS organization_logo
        FROM jobs j
        INNER JOIN organizations o ON o.id = j.organization_id
        WHERE j.id = $1`,
