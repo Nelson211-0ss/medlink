@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Briefcase, Calendar, MapPin, Users } from 'lucide-react';
+import { Briefcase, Calendar, MapPin } from 'lucide-react';
+import { JobApplicantsPanel } from '@/components/JobApplicantsPanel';
 import { OrganizationBadge } from '@/components/OrganizationBadge';
 import { api, ApiEnvelope, apiError } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
@@ -10,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/input';
-import { Avatar, PageLoader, Spinner } from '@/components/ui/misc';
+import { PageLoader, Spinner } from '@/components/ui/misc';
 import { formatCurrency, titleCase } from '@/lib/utils';
 
 interface Job {
@@ -119,7 +120,7 @@ export default function JobDetail() {
           </CardContent>
         </Card>
 
-        {user.role === 'organization' && <CandidatesPanel jobId={job.id} />}
+        {user.role === 'organization' && <JobApplicantsPanel jobId={job.id} />}
       </div>
 
       <div>
@@ -143,7 +144,7 @@ export default function JobDetail() {
                     rows={6}
                   />
                   <Button className="w-full" onClick={() => apply.mutate()} disabled={apply.isPending}>
-                    {apply.isPending && <Spinner />} Submit application
+                    {apply.isPending && <Spinner />} Apply Now
                   </Button>
                 </>
               )}
@@ -152,48 +153,5 @@ export default function JobDetail() {
         )}
       </div>
     </div>
-  );
-}
-
-interface Candidate {
-  professionalId: string;
-  matchScore: number;
-  reasons: string[];
-}
-
-function CandidatesPanel({ jobId }: { jobId: string }) {
-  const { data, isLoading } = useQuery({
-    queryKey: ['candidates', jobId],
-    queryFn: async () => (await api.get<ApiEnvelope<Candidate[]>>(`/jobs/${jobId}/candidates`)).data.data,
-  });
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Users className="h-5 w-5" /> Matched candidates
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {isLoading ? (
-          <Spinner />
-        ) : data?.length ? (
-          data.map((c) => (
-            <div key={c.professionalId} className="flex items-center justify-between rounded-lg border p-3">
-              <div className="flex items-center gap-3">
-                <Avatar />
-                <div>
-                  <p className="text-sm font-medium">Candidate {c.professionalId.slice(0, 6)}</p>
-                  <p className="text-xs text-muted-foreground">{c.reasons.slice(0, 2).join(' · ')}</p>
-                </div>
-              </div>
-              <Badge variant="success">{c.matchScore}%</Badge>
-            </div>
-          ))
-        ) : (
-          <p className="text-sm text-muted-foreground">No matches yet.</p>
-        )}
-      </CardContent>
-    </Card>
   );
 }

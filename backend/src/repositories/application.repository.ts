@@ -14,6 +14,11 @@ export interface ApplicationWithCandidate extends ApplicationRow {
   avatar: string | null;
 }
 
+export interface ApplicationInboxRow extends ApplicationWithCandidate {
+  job_title: string;
+  job_id: string;
+}
+
 export class ApplicationRepository extends BaseRepository<ApplicationRow> {
   protected table = 'applications';
 
@@ -43,6 +48,21 @@ export class ApplicationRepository extends BaseRepository<ApplicationRow> {
        WHERE a.job_id = $1
        ORDER BY a.match_score DESC NULLS LAST, a.created_at DESC`,
       [jobId],
+    );
+    return rows;
+  }
+
+  async listForOrganization(orgId: string): Promise<ApplicationInboxRow[]> {
+    const { rows } = await query<ApplicationInboxRow>(
+      `SELECT a.*, u.first_name, u.last_name, u.avatar, p.profession,
+              j.title AS job_title, j.id AS job_id
+       FROM applications a
+       JOIN jobs j ON j.id = a.job_id
+       JOIN healthcare_professionals p ON p.id = a.professional_id
+       JOIN users u ON u.id = p.user_id
+       WHERE j.organization_id = $1
+       ORDER BY a.created_at DESC`,
+      [orgId],
     );
     return rows;
   }

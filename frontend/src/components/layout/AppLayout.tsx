@@ -12,9 +12,9 @@ import {
   LogOut,
   Menu,
   X,
-  Bell,
 } from 'lucide-react';
 import { Logo } from '../Logo';
+import { NotificationBell } from '../NotificationBell';
 import { ThemeToggle } from '../ThemeToggle';
 import { Button } from '../ui/button';
 import { Avatar } from '../ui/misc';
@@ -122,9 +122,7 @@ export function AppLayout() {
           </Button>
           <div className="hidden flex-1 lg:block" />
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
-            <Button variant="ghost" size="icon" aria-label="Notifications" className="text-slate-600">
-              <Bell className="h-5 w-5" />
-            </Button>
+            <NotificationBell />
             <ThemeToggle />
             <div className="flex items-center gap-2.5 pl-1">
               <div className="text-right">

@@ -42,14 +42,19 @@ export class ApplicationService {
       match_score: matchScore,
     });
 
+    const applicant = await this.users.findById(userId);
+    const applicantName = applicant
+      ? `${applicant.first_name} ${applicant.last_name}`.trim()
+      : 'A candidate';
+
     const org = await this.organizations.findById(job.organization_id);
     if (org) {
       await this.notifications.notify({
         userId: org.user_id,
         type: NOTIFICATION_TYPES.APPLICATION_UPDATE,
         title: 'New application received',
-        body: `A candidate applied to "${job.title}"`,
-        data: { jobId, applicationId: application.id },
+        body: `${applicantName} applied to "${job.title}"`,
+        data: { jobId, applicationId: application.id, professionalId: profile.id },
       });
     }
     return application;
@@ -69,6 +74,12 @@ export class ApplicationService {
     return this.applications.listForJob(jobId);
   }
 
+  async listInbox(userId: string) {
+    const org = await this.organizations.findByUserId(userId);
+    if (!org) throw new ForbiddenError('Organization profile required');
+    return this.applications.listForOrganization(org.id);
+  }
+
   async updateStage(userId: string, applicationId: string, stage: string) {
     if (!APPLICATION_STAGES.includes(stage as never)) {
       throw new BadRequestError('Invalid application stage');
@@ -84,12 +95,13 @@ export class ApplicationService {
     const profile = await this.professionals.findById(application.professional_id);
     if (profile) {
       const candidate = await this.users.findById(profile.user_id);
+      const { title, body } = stageNotification(stage, job.title);
       await this.notifications.notify({
         userId: profile.user_id,
         type: NOTIFICATION_TYPES.APPLICATION_UPDATE,
-        title: 'Application update',
-        body: `Your application for "${job.title}" is now ${stage}`,
-        data: { jobId: job.id, applicationId },
+        title,
+        body,
+        data: { jobId: job.id, applicationId, stage },
       });
       if (candidate) {
         await this.email.sendApplicationUpdate(candidate.email, candidate.first_name, job.title, stage);
@@ -106,5 +118,40 @@ export class ApplicationService {
       acc[stage] = counts[stage] ?? 0;
       return acc;
     }, {});
+  }
+}
+
+function stageNotification(stage: string, jobTitle: string): { title: string; body: string } {
+  switch (stage) {
+    case 'hired':
+      return {
+        title: 'You have been accepted!',
+        body: `Congratulations — you have been admitted for "${jobTitle}".`,
+      };
+    case 'offer':
+      return {
+        title: 'Offer received',
+        body: `You have received an offer for "${jobTitle}".`,
+      };
+    case 'rejected':
+      return {
+        title: 'Application update',
+        body: `Your application for "${jobTitle}" was not successful this time.`,
+      };
+    case 'interview':
+      return {
+        title: 'Interview invitation',
+        body: `You have been invited to interview for "${jobTitle}".`,
+      };
+    case 'screening':
+      return {
+        title: 'Application under review',
+        body: `Your application for "${jobTitle}" is being reviewed.`,
+      };
+    default:
+      return {
+        title: 'Application update',
+        body: `Your application for "${jobTitle}" is now ${stage}.`,
+      };
   }
 }

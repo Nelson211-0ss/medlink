@@ -18,6 +18,10 @@ export const applicationController = {
     return ok(res, await applicationService.listForJob(req.user!.id, req.params.jobId));
   }),
 
+  inbox: asyncHandler(async (req, res) => {
+    return ok(res, await applicationService.listInbox(req.user!.id));
+  }),
+
   updateStage: asyncHandler(async (req, res) => {
     return ok(res, await applicationService.updateStage(req.user!.id, req.params.id, req.body.stage), 'Stage updated');
   }),

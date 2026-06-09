@@ -136,13 +136,13 @@ export default function CandidateSearch() {
 
       {/* Grid */}
       {isLoading ? (
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
             <TalentCardSkeleton key={i} />
           ))}
         </div>
       ) : results.length ? (
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {results.map((p, i) => (
             <TalentCard
               key={p.id}

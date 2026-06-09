@@ -193,6 +193,55 @@
   .talent-filter-pill--active {
     @apply border-primary bg-primary text-primary-foreground shadow-sm hover:border-primary hover:text-primary-foreground;
   }
+
+  .job-card {
+    @apply relative;
+  }
+
+  .job-card-accent {
+    @apply h-1 w-full shrink-0 bg-gradient-to-r from-primary/80 via-primary to-primary/60;
+  }
+
+  .job-meta-chip {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-muted/80 px-2.5 py-1 text-xs font-medium text-muted-foreground;
+  }
+
+  .job-form-panel {
+    @apply overflow-hidden rounded-2xl border-0 bg-white shadow-sm dark:bg-card;
+  }
+
+  .job-form-section {
+    @apply space-y-4 rounded-xl border border-border/50 bg-muted/20 p-4 sm:p-5;
+  }
+
+  .job-form-section-title {
+    @apply text-xs font-semibold uppercase tracking-wider text-muted-foreground;
+  }
+
+  .pro-job-card {
+    @apply flex flex-wrap items-start gap-4 rounded-xl border border-border/50 bg-card p-4 transition-all duration-200 sm:flex-nowrap sm:items-center sm:gap-5 sm:p-5;
+  }
+
+  .pro-job-card:hover {
+    @apply border-primary/25 bg-muted/20 shadow-sm;
+  }
+
+  .pro-job-tag {
+    @apply inline-flex items-center gap-1 rounded-md bg-muted/70 px-2 py-1 text-xs font-medium text-foreground;
+  }
+
+  .pro-job-tag--muted {
+    @apply text-muted-foreground;
+  }
+
+  .pro-job-tag--active {
+    @apply bg-primary/10 text-primary;
+  }
+
+  .pro-job-tag--urgent {
+    @apply bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300;
+  }
+
 }
 
 @layer utilities {

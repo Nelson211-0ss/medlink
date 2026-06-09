@@ -31,6 +31,7 @@ import {
   PipelineBreakdownChart,
   VerticalBarChart,
 } from '@/components/dashboard/Charts';
+import { JobApplyButton } from '@/components/JobApplyButton';
 import { titleCase } from '@/lib/utils';
 
 interface ProDash {
@@ -104,7 +105,19 @@ export default function Dashboard() {
   );
 }
 
+interface MyApplication {
+  job_id: string;
+}
+
 function ProfessionalDashboard({ d }: { d: ProDash }) {
+  const { data: myApplications } = useQuery({
+    queryKey: ['applications', 'me'],
+    queryFn: async () =>
+      (await api.get<ApiEnvelope<MyApplication[]>>('/applications/me')).data.data,
+  });
+
+  const appliedJobIds = new Set(myApplications?.map((a) => a.job_id) ?? []);
+
   const avgMatch =
     d.recommendedJobs?.length
       ? Math.round(d.recommendedJobs.reduce((s, j) => s + j.matchScore, 0) / d.recommendedJobs.length)
@@ -190,19 +203,25 @@ function ProfessionalDashboard({ d }: { d: ProDash }) {
         <CardContent className="space-y-2 p-4 pt-0">
           {d.recommendedJobs?.length ? (
             d.recommendedJobs.map((m) => (
-              <Link
+              <div
                 key={m.job.id}
-                to={`/jobs/${m.job.id}`}
-                className="flex items-center justify-between rounded-lg bg-slate-50 p-3 transition-colors hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800/70"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-slate-50 p-3 dark:bg-slate-800/40"
               >
-                <div>
-                  <p className="font-medium">{m.job.title}</p>
-                  <p className="text-sm text-muted-foreground">{m.reasons?.slice(0, 2).join(' · ')}</p>
+                <div className="min-w-0 flex-1">
+                  <Link to={`/jobs/${m.job.id}`} className="font-medium hover:text-primary hover:underline">
+                    {m.job.title}
+                  </Link>
+                  <p className="text-sm text-muted-foreground">
+                    {[m.job.city, m.reasons?.slice(0, 2).join(' · ')].filter(Boolean).join(' · ')}
+                  </p>
                 </div>
-                <Badge variant="default">
-                  <AnimatedCounter end={m.matchScore} suffix="%" />
-                </Badge>
-              </Link>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Badge variant="default">
+                    <AnimatedCounter end={m.matchScore} suffix="%" />
+                  </Badge>
+                  <JobApplyButton jobId={m.job.id} applied={appliedJobIds.has(m.job.id)} />
+                </div>
+              </div>
             ))
           ) : (
             <p className="text-sm text-muted-foreground">Complete your profile to get matched.</p>
