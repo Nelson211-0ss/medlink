@@ -118,6 +118,102 @@
       radial-gradient(60% 60% at 0% 30%, hsl(var(--primary) / 0.06), transparent),
       hsl(var(--background));
   }
+
+  /* Split auth panel — sliding login / signup (Florin Pop double-slider pattern) */
+  .auth-split {
+    @apply relative hidden min-h-screen w-full overflow-hidden bg-white lg:block;
+  }
+
+  .auth-form-container {
+    @apply absolute top-0 flex h-full w-1/2 items-center justify-center overflow-y-auto bg-white px-10 py-10;
+    transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
+  }
+
+  .auth-sign-in {
+    left: 0;
+    z-index: 2;
+  }
+
+  .auth-sign-up {
+    left: 0;
+    opacity: 0;
+    z-index: 1;
+  }
+
+  .auth-split--signup .auth-sign-in {
+    transform: translateX(100%);
+    opacity: 0;
+    z-index: 1;
+  }
+
+  .auth-split--signup .auth-sign-up {
+    transform: translateX(100%);
+    opacity: 1;
+    z-index: 5;
+  }
+
+  .auth-overlay-container {
+    @apply absolute top-0 h-full w-1/2 overflow-hidden;
+    left: 50%;
+    z-index: 100;
+    transition: transform 0.6s ease-in-out;
+  }
+
+  .auth-split--signup .auth-overlay-container {
+    transform: translateX(-100%);
+  }
+
+  .auth-overlay {
+    @apply relative h-full text-white;
+    left: -100%;
+    width: 200%;
+    transform: translateX(0);
+    transition: transform 0.6s ease-in-out;
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, #1d4ed8 55%, #0ea5e9 100%);
+  }
+
+  .auth-split--signup .auth-overlay {
+    transform: translateX(50%);
+  }
+
+  .auth-overlay::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 opacity-15;
+    background-image:
+      linear-gradient(30deg, #fff 12%, transparent 12.5%, transparent 87%, #fff 87.5%, #fff),
+      linear-gradient(150deg, #fff 12%, transparent 12.5%, transparent 87%, #fff 87.5%, #fff);
+    background-size: 70px 120px;
+    background-position:
+      0 0,
+      35px 60px;
+  }
+
+  .auth-overlay-panel {
+    @apply absolute top-0 flex h-full w-1/2 flex-col items-center justify-center px-12 text-center;
+    transition: transform 0.6s ease-in-out;
+  }
+
+  .auth-overlay-left {
+    left: 0;
+    transform: translateX(-20%);
+  }
+
+  .auth-split--signup .auth-overlay-left {
+    transform: translateX(0);
+  }
+
+  .auth-overlay-right {
+    right: 0;
+    transform: translateX(0);
+  }
+
+  .auth-split--signup .auth-overlay-right {
+    transform: translateX(20%);
+  }
+
+  .auth-ghost-btn {
+    @apply mt-8 rounded-full border-2 border-white px-12 py-2.5 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-white/10;
+  }
 }
 
 @keyframes fly {
