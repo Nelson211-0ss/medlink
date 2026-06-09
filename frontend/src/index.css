@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%; /* #F8FAFC */
+    --foreground: 222 47% 17%; /* #1E293B */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 17%;
+    --primary: 221 83% 53%; /* #2563EB */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 160 84% 39%; /* #10B981 */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 221 83% 96%;
+    --accent-foreground: 221 83% 40%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 96%;
+    --card: 222 47% 14%;
+    --card-foreground: 210 40% 96%;
+    --primary: 221 83% 60%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 160 84% 42%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 217 33% 18%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 20%;
+    --accent-foreground: 210 40% 96%;
+    --destructive: 0 63% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 217 33% 22%;
+    --input: 217 33% 22%;
+    --ring: 221 83% 60%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+}
+
+@layer utilities {
+  .gradient-hero {
+    background:
+      radial-gradient(60% 60% at 80% 10%, hsl(var(--secondary) / 0.12), transparent),
+      radial-gradient(60% 60% at 10% 20%, hsl(var(--primary) / 0.15), transparent);
+  }
+}

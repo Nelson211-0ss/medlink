@@ -1,0 +1,169 @@
+# ============================================================
+# MediNexus — Development stack
+# ============================================================
+
+name: medinexus
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: medinexus-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-medinexus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medinexus_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-medinexus}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medinexus}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [medinexus-net]
+
+  redis:
+    image: redis:7-alpine
+    container_name: medinexus-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [medinexus-net]
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: medinexus-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "${ELASTIC_PORT:-9200}:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+    networks: [medinexus-net]
+
+  minio:
+    image: minio/minio:latest
+    container_name: medinexus-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks: [medinexus-net]
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: medinexus-mailhog
+    restart: unless-stopped
+    ports:
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"
+      - "${MAILHOG_UI_PORT:-8025}:8025"
+    networks: [medinexus-net]
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: medinexus-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # Override host-based URLs from .env so the container reaches services by
+      # their Docker network names (not localhost, which is the container itself).
+      DATABASE_URL: postgresql://${POSTGRES_USER:-medinexus}:${POSTGRES_PASSWORD:-medinexus_secret}@postgres:5432/${POSTGRES_DB:-medinexus}
+      REDIS_URL: redis://redis:6379
+      ELASTICSEARCH_NODE: http://elasticsearch:9200
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: "9000"
+      SMTP_HOST: mailhog
+      SMTP_PORT: "1025"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_started
+      minio:
+        condition: service_started
+    ports:
+      - "${BACKEND_PORT:-4000}:4000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks: [medinexus-net]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: medinexus-frontend
+    restart: unless-stopped
+    env_file:
+      - ./frontend/.env
+    environment:
+      # Inside Docker the Vite dev-server proxy must reach the backend by its
+      # service name, not localhost (which would be the frontend container).
+      VITE_PROXY_TARGET: http://backend:4000
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks: [medinexus-net]
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: medinexus-nginx
+    restart: unless-stopped
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+    volumes:
+      - ./docker/nginx/dev.conf:/etc/nginx/conf.d/default.conf:ro
+    networks: [medinexus-net]
+
+volumes:
+  postgres-data:
+  redis-data:
+  esdata:
+  minio-data:
+
+networks:
+  medinexus-net:
+    driver: bridge
