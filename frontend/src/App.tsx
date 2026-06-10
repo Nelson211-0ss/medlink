@@ -3,6 +3,7 @@ import { Suspense, lazy } from 'react';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
 import { FlyingElements } from './components/FlyingElements';
+import { PageFlyIn } from './components/PageFlyIn';
 import { PageLoader } from './components/ui/misc';
 
 const Landing = lazy(() => import('./pages/Landing'));
@@ -20,6 +21,8 @@ const Messages = lazy(() => import('./pages/Messages'));
 const Applications = lazy(() => import('./pages/Applications'));
 const Billing = lazy(() => import('./pages/Billing'));
 const Admin = lazy(() => import('./pages/Admin'));
+const AdminProfessionals = lazy(() => import('./pages/admin/AdminProfessionals'));
+const AdminOrganizations = lazy(() => import('./pages/admin/AdminOrganizations'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 export default function App() {
@@ -27,11 +30,14 @@ export default function App() {
     <Suspense fallback={<PageLoader />}>
       <FlyingElements />
       <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/oauth/callback" element={<OAuthCallback />} />
+        <Route element={<PageFlyIn className="min-h-screen" />}>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/oauth/callback" element={<OAuthCallback />} />
+          <Route path="/404" element={<NotFound />} />
+        </Route>
 
         <Route
           element={
@@ -71,9 +77,24 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/professionals"
+            element={
+              <ProtectedRoute roles={['admin']}>
+                <AdminProfessionals />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/organizations"
+            element={
+              <ProtectedRoute roles={['admin']}>
+                <AdminOrganizations />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
-        <Route path="/404" element={<NotFound />} />
         <Route path="*" element={<Navigate to="/404" replace />} />
       </Routes>
     </Suspense>

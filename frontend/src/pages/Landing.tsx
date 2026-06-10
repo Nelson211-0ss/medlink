@@ -83,7 +83,7 @@ export default function Landing() {
       {/* Hero */}
       <section className="gradient-hero relative overflow-x-hidden">
         <div className="container relative z-10 grid items-center gap-10 py-14 sm:py-16 lg:grid-cols-2 lg:gap-12 lg:py-16 xl:py-20">
-          <div className="animate-slide-up flex flex-col justify-center pt-8 sm:pt-10 lg:py-12 lg:pr-6 xl:pr-10">
+          <div className="flex flex-col justify-center pt-8 sm:pt-10 lg:py-12 lg:pr-6 xl:pr-10">
             <h1 className="flex flex-col gap-1 text-3xl font-extrabold tracking-tight text-foreground sm:gap-1.5 sm:text-4xl lg:text-[2.85rem]">
               <span>Connecting</span>
               <span>
@@ -114,10 +114,7 @@ export default function Landing() {
             </div>
           </div>
 
-          <div
-            className="animate-slide-up flex min-h-[min(58vh,560px)] items-center justify-center overflow-visible sm:min-h-[min(62vh,620px)] lg:min-h-[640px]"
-            style={{ animationDelay: '0.15s' }}
-          >
+          <div className="flex min-h-[min(58vh,560px)] items-center justify-center overflow-visible sm:min-h-[min(62vh,620px)] lg:min-h-[640px]">
             <NurseSlider className="h-full w-full" />
           </div>
         </div>

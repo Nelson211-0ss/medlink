@@ -1,11 +1,12 @@
 import { query } from '../database/pool';
 import { UserRepository } from '../repositories/user.repository';
+import { FileService } from './file.service';
 import { ProfessionalRepository } from '../repositories/professional.repository';
 import { OrganizationRepository } from '../repositories/organization.repository';
 import { JobRepository } from '../repositories/job.repository';
 import { AuditRepository } from '../repositories/audit.repository';
-import { VERIFICATION_STATUS, USER_STATUS } from '../utils/constants';
-import { NotFoundError } from '../utils/errors';
+import { ROLES, USER_STATUS, VERIFICATION_STATUS } from '../utils/constants';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../utils/errors';
 
 export class AdminService {
   constructor(
@@ -14,6 +15,7 @@ export class AdminService {
     private organizations: OrganizationRepository,
     private jobs: JobRepository,
     private audit: AuditRepository,
+    private files: FileService,
   ) {}
 
   async stats() {
@@ -98,11 +100,106 @@ export class AdminService {
 
   async setUserStatus(adminId: string, userId: string, status: string) {
     if (!Object.values(USER_STATUS).includes(status as never)) {
-      throw new NotFoundError('Invalid status');
+      throw new BadRequestError('Invalid status');
     }
     const updated = await this.users.update(userId, { status });
+    if (!updated) throw new NotFoundError('User not found');
     await this.audit.log({ actorId: adminId, action: 'set_user_status', entityType: 'user', entityId: userId, metadata: { status } });
     return updated;
+  }
+
+  async listUsers(params: { page: number; limit: number; offset: number; role?: string; q?: string }) {
+    const { rows, total } = await this.users.listForAdmin({
+      role: params.role,
+      q: params.q,
+      limit: params.limit,
+      offset: params.offset,
+    });
+
+    const users = await Promise.all(
+      rows.map(async (row) => {
+        const base = {
+          id: row.id,
+          firstName: row.first_name,
+          lastName: row.last_name,
+          email: row.email,
+          phone: row.phone,
+          role: row.role,
+          status: row.status,
+          emailVerified: row.email_verified,
+          createdAt: row.created_at,
+          avatar: await this.files.resolveUrl(row.avatar),
+        };
+
+        if (row.role === 'professional') {
+          return {
+            ...base,
+            professionalId: row.professional_id,
+            profession: row.profession,
+            specialization: row.specialization,
+            experienceYears: row.experience_years,
+            city: row.pro_city,
+            country: row.pro_country,
+            skills: row.skills ?? [],
+            availability: row.availability,
+            salaryExpectation: row.salary_expectation,
+            licenseNumber: row.license_number,
+            verificationStatus: row.pro_verification,
+            profileCompletion: row.profile_completion,
+          };
+        }
+
+        if (row.role === 'organization') {
+          return {
+            ...base,
+            organizationId: row.organization_id,
+            organizationName: row.organization_name,
+            organizationType: row.organization_type,
+            registrationNumber: row.registration_number,
+            website: row.website,
+            city: row.org_city,
+            country: row.org_country,
+            size: row.org_size,
+            description: row.org_description,
+            verificationStatus: row.org_verification,
+            logo: await this.files.resolveUrl(row.logo),
+          };
+        }
+
+        return base;
+      }),
+    );
+
+    return { total, users };
+  }
+
+  async deleteUser(adminId: string, userId: string) {
+    if (adminId === userId) {
+      throw new ForbiddenError('You cannot delete your own account');
+    }
+
+    const user = await this.users.findById(userId);
+    if (!user) throw new NotFoundError('User not found');
+
+    if (user.role === ROLES.ADMIN) {
+      const adminCount = await this.users.countAdmins();
+      if (adminCount <= 1) {
+        throw new ForbiddenError('Cannot delete the last system administrator');
+      }
+    }
+
+    const deleted = await this.users.deleteById(userId);
+    if (!deleted) throw new NotFoundError('User not found');
+
+    await this.audit.log({
+      actorId: adminId,
+      action: 'delete_user',
+      entityType: 'user',
+      entityId: userId,
+      metadata: { email: user.email, role: user.role },
+    });
+
+    return { id: userId };
   }
 
   recentAuditLogs() {

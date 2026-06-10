@@ -103,6 +103,7 @@ const adminService = new AdminService(
   organizationRepo,
   jobRepo,
   auditRepo,
+  fileService,
 );
 const dashboardService = new DashboardService(
   professionalRepo,

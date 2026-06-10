@@ -26,7 +26,7 @@ export function AuthShell({
         </div>
 
         <div className="flex flex-1 items-center justify-center py-10">
-          <div className={`w-full animate-fade-in ${compact ? 'max-w-[300px]' : 'max-w-[420px]'}`}>
+          <div className={`w-full ${compact ? 'max-w-[300px]' : 'max-w-[420px]'}`}>
             <div
               className={`rounded-2xl border border-slate-200 bg-white shadow-lg ${
                 tall ? 'px-6 py-10 sm:px-8 sm:py-12' : compact ? 'p-5 sm:p-6' : 'p-6 sm:p-8'

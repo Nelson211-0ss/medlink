@@ -7,8 +7,10 @@ import {
   MessageSquare,
   FileText,
   User,
+  Users,
   CreditCard,
   ShieldCheck,
+  Building2,
   LogOut,
   Menu,
   X,
@@ -22,6 +24,7 @@ import { cn, titleCase } from '@/lib/utils';
 import { Role, useAuthStore } from '@/store/auth';
 import { useLogout } from '@/hooks/useAuth';
 import { connectSocket, disconnectSocket } from '@/lib/socket';
+import { PageFlyIn } from '@/components/PageFlyIn';
 
 interface NavItem {
   to: string;
@@ -39,6 +42,8 @@ const NAV: NavItem[] = [
   { to: '/profile', label: 'Profile', icon: User },
   { to: '/billing', label: 'Billing', icon: CreditCard },
   { to: '/admin', label: 'Admin', icon: ShieldCheck, roles: ['admin'] },
+  { to: '/admin/professionals', label: 'Professionals', icon: Users, roles: ['admin'] },
+  { to: '/admin/organizations', label: 'Organizations', icon: Building2, roles: ['admin'] },
 ];
 
 export function AppLayout() {
@@ -83,6 +88,7 @@ export function AppLayout() {
             <NavLink
               key={item.to}
               to={item.to}
+              end={item.to === '/admin'}
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 cn(
@@ -139,9 +145,9 @@ export function AppLayout() {
         </header>
 
         <main className="flex-1 px-4 pb-5 pt-1 sm:px-5 sm:pb-6 lg:px-6 lg:pb-6">
-          <div className="animate-fade-in">
+          <PageFlyIn>
             <Outlet />
-          </div>
+          </PageFlyIn>
         </main>
       </div>
     </div>

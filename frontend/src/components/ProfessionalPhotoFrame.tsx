@@ -58,9 +58,11 @@ export function ProfessionalPhotoFrame({
             'h-full w-full',
             cutout
               ? size === 'sidebar'
-                ? 'object-contain object-bottom px-4 pb-2 pt-2'
+                ? 'object-contain object-bottom px-3 pb-3 pt-1'
                 : 'object-contain object-bottom px-2 pb-1'
-              : 'object-cover object-center',
+              : size === 'sidebar'
+                ? 'object-cover object-top'
+                : 'object-cover object-center',
           )}
           onError={() => setFailed(true)}
         />

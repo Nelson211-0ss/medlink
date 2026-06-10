@@ -263,7 +263,7 @@
   }
 
   .org-resume-photo {
-    @apply mx-auto aspect-[4/3] w-full overflow-hidden rounded-xl;
+    @apply mx-auto aspect-[3/4] w-full max-w-[220px] overflow-hidden rounded-xl;
   }
 
   .org-resume-profile-body {
@@ -397,6 +397,158 @@
 
   .org-resume-credential {
     @apply rounded-lg border border-border/40 bg-muted/15 px-3 py-2.5;
+  }
+
+  .admin-page {
+    @apply mx-auto w-full max-w-3xl space-y-6 pb-4;
+  }
+
+  .admin-page-header {
+    @apply space-y-1.5 text-center sm:text-left;
+  }
+
+  .admin-page-title {
+    @apply text-2xl font-bold tracking-tight text-foreground;
+  }
+
+  .admin-page-description {
+    @apply text-sm leading-relaxed text-muted-foreground;
+  }
+
+  .admin-list-shell {
+    @apply space-y-5;
+  }
+
+  .admin-list-toolbar {
+    @apply space-y-3 rounded-2xl bg-card p-4 shadow-sm ring-1 ring-border/50 sm:p-5;
+  }
+
+  .admin-list-toolbar-top {
+    @apply flex items-center justify-between gap-3;
+  }
+
+  .admin-list-count {
+    @apply inline-flex items-center gap-2.5 text-sm font-medium text-foreground;
+  }
+
+  .admin-list-count-icon {
+    @apply flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary;
+  }
+
+  .admin-search-form {
+    @apply flex flex-col gap-2 sm:flex-row;
+  }
+
+  .admin-search-input-wrap {
+    @apply relative min-w-0 flex-1;
+  }
+
+  .admin-search-icon {
+    @apply pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground;
+  }
+
+  .admin-search-input {
+    @apply h-10 rounded-xl border-0 bg-muted/40 pl-10 shadow-none focus-visible:ring-primary/30;
+  }
+
+  .admin-search-btn {
+    @apply h-10 shrink-0 rounded-xl px-5;
+  }
+
+  .admin-list-empty {
+    @apply rounded-2xl bg-card py-20 text-center text-sm text-muted-foreground ring-1 ring-border/50;
+  }
+
+  .admin-account-list {
+    @apply space-y-3;
+  }
+
+  .admin-account-card {
+    @apply rounded-2xl bg-card p-4 shadow-sm ring-1 ring-border/50 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:p-5;
+  }
+
+  .admin-account-layout {
+    @apply flex flex-col gap-5 sm:flex-row sm:items-start;
+  }
+
+  .admin-account-layout--org {
+    @apply sm:items-start;
+  }
+
+  .admin-account-photo {
+    @apply shrink-0 self-center sm:self-start;
+  }
+
+  .admin-account-photo-frame {
+    @apply !h-32 !w-24 rounded-2xl ring-1 ring-border/40 sm:!h-36 sm:!w-28;
+  }
+
+  .admin-org-logo-wrap {
+    @apply shrink-0 self-center sm:self-start;
+  }
+
+  .admin-org-logo {
+    @apply flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl bg-muted/40 object-cover ring-1 ring-border/40 sm:h-28 sm:w-28;
+  }
+
+  .admin-org-logo--fallback {
+    @apply bg-gradient-to-br from-primary/15 to-primary/5;
+  }
+
+  .admin-account-body {
+    @apply min-w-0 flex-1 space-y-4;
+  }
+
+  .admin-account-subtitle {
+    @apply text-sm font-medium text-muted-foreground;
+  }
+
+  .admin-account-desc {
+    @apply rounded-xl bg-muted/25 px-3.5 py-3 text-sm leading-relaxed text-muted-foreground;
+  }
+
+  .admin-card-actions {
+    @apply flex shrink-0 items-center gap-1;
+  }
+
+  .admin-card-action {
+    @apply h-8 rounded-lg px-2.5;
+  }
+
+  .admin-card-action--danger {
+    @apply text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40;
+  }
+
+  .admin-detail-grid {
+    @apply grid gap-2 sm:grid-cols-2;
+  }
+
+  .admin-detail-cell {
+    @apply rounded-xl bg-muted/35 px-3.5 py-2.5;
+  }
+
+  .admin-detail-label {
+    @apply text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80;
+  }
+
+  .admin-detail-value {
+    @apply mt-1 text-sm font-medium leading-snug text-foreground;
+  }
+
+  .admin-skill-badge {
+    @apply rounded-md px-2 py-0.5 text-xs font-medium;
+  }
+
+  .admin-contact-row {
+    @apply flex flex-col gap-2 rounded-xl bg-muted/25 px-3.5 py-3 text-sm text-muted-foreground;
+  }
+
+  .admin-contact-item {
+    @apply inline-flex min-w-0 items-center gap-2;
+  }
+
+  .admin-contact-item svg {
+    @apply text-muted-foreground;
   }
 
 }
@@ -541,6 +693,26 @@
   }
 }
 
+@keyframes fly-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .animate-fly {
   animation: fly 6s ease-in-out infinite;
 }
@@ -556,6 +728,22 @@
 
 .animate-slide-up {
   animation: slide-up 0.55s ease-out both;
+}
+
+.animate-fly-in {
+  animation: fly-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.45s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fly-in,
+  .animate-fade-in,
+  .animate-slide-up {
+    animation: none;
+  }
 }
 
 /* Hero nurse slider — circular portrait frame */

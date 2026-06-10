@@ -74,7 +74,9 @@ export default function Admin() {
     <div className="space-y-5">
       <div className="dash-page-header">
         <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-white">Admin panel</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Platform metrics and pending verifications.</p>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          Platform metrics and pending verifications.
+        </p>
       </div>
 
       <div className="dash-stat-grid">
