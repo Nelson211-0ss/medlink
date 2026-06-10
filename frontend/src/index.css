@@ -82,10 +82,6 @@
     @apply bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400;
   }
 
-  .dash-stat-icon-green {
-    @apply bg-green-100 text-green-600 dark:bg-green-950 dark:text-green-400;
-  }
-
   .dash-stat-icon-orange {
     @apply bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-400;
   }
@@ -240,6 +236,167 @@
 
   .pro-job-tag--urgent {
     @apply bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300;
+  }
+
+  .org-resume {
+    @apply overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm;
+  }
+
+  .org-resume-layout {
+    @apply grid lg:grid-cols-[minmax(260px,300px)_1fr];
+  }
+
+  .org-resume-sidebar {
+    @apply border-b border-primary/30 bg-gradient-to-b from-primary via-primary to-[hsl(221_83%_42%)] text-primary-foreground lg:border-b-0 lg:border-r lg:border-primary/30;
+  }
+
+  .org-resume-profile-card {
+    @apply relative lg:sticky lg:top-4;
+  }
+
+  .org-resume-profile-accent {
+    @apply absolute inset-x-0 top-0 z-10 h-1 rounded-tl-2xl bg-white/25;
+  }
+
+  .org-resume-photo-wrap {
+    @apply px-5 pb-1 pt-5;
+  }
+
+  .org-resume-photo {
+    @apply mx-auto aspect-[4/3] w-full overflow-hidden rounded-xl;
+  }
+
+  .org-resume-profile-body {
+    @apply space-y-5 px-5 pb-5 pt-4;
+  }
+
+  .org-resume-name {
+    @apply text-xl font-bold leading-tight tracking-tight text-primary-foreground;
+  }
+
+  .org-resume-role {
+    @apply text-sm font-medium text-primary-foreground/85;
+  }
+
+  .org-resume-verified {
+    @apply inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground/90;
+  }
+
+  .org-resume-details {
+    @apply space-y-2.5 border-t border-white/15 pt-4;
+  }
+
+  .org-resume-detail {
+    @apply flex items-start gap-2.5 text-sm leading-snug text-primary-foreground/95;
+  }
+
+  .org-resume-detail-dot {
+    @apply mt-2 h-1 w-1 shrink-0 rounded-full bg-primary-foreground/70;
+  }
+
+  .org-resume-detail-link {
+    @apply min-w-0 transition-colors hover:text-white hover:underline hover:underline-offset-2;
+  }
+
+  .org-resume-sidebar-label {
+    @apply text-[11px] font-semibold uppercase tracking-wider text-primary-foreground/60;
+  }
+
+  .org-resume-skills-block {
+    @apply space-y-1 border-t border-white/15 pt-4;
+  }
+
+  .org-resume-skills-text {
+    @apply text-sm leading-relaxed text-primary-foreground/90;
+  }
+
+  .org-resume-download {
+    @apply inline-flex items-center gap-2 text-sm font-medium text-primary-foreground transition-colors hover:text-white hover:underline hover:underline-offset-4;
+  }
+
+  .org-resume-download--section {
+    @apply border-t border-white/15 pt-4;
+  }
+
+  .org-resume-main {
+    @apply min-w-0 p-5 sm:p-6 lg:p-7;
+  }
+
+  .org-resume-empty {
+    @apply flex min-h-[280px] flex-col items-center justify-center rounded-xl border border-dashed border-border/70 bg-muted/20 px-6 py-12 text-center;
+  }
+
+  .org-resume-section {
+    @apply overflow-hidden rounded-xl border border-border/50 bg-background/50;
+  }
+
+  .org-resume-section--compact {
+    @apply h-full;
+  }
+
+  .org-resume-section-header {
+    @apply flex items-center gap-2.5 border-b border-border/40 bg-muted/25 px-4 py-3 sm:px-5;
+  }
+
+  .org-resume-section-icon {
+    @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary;
+  }
+
+  .org-resume-section-title {
+    @apply text-sm font-semibold tracking-tight;
+  }
+
+  .org-resume-section-body {
+    @apply p-4 sm:p-5;
+  }
+
+  .org-resume-summary {
+    @apply text-sm leading-relaxed text-muted-foreground sm:text-[15px];
+  }
+
+  .org-resume-timeline {
+    @apply relative space-y-0;
+  }
+
+  .org-resume-timeline-item {
+    @apply relative pl-8 pb-6 last:pb-0;
+  }
+
+  .org-resume-timeline-item::before {
+    content: '';
+    @apply absolute bottom-0 left-[11px] top-3 w-px bg-border;
+  }
+
+  .org-resume-timeline-item:last-child::before {
+    @apply hidden;
+  }
+
+  .org-resume-timeline-dot {
+    @apply absolute left-0 top-1.5 h-[22px] w-[22px] rounded-full border-2 border-background bg-muted ring-2 ring-primary/25;
+  }
+
+  .org-resume-timeline-dot--current {
+    @apply bg-primary ring-primary/30;
+  }
+
+  .org-resume-timeline-card {
+    @apply rounded-lg border border-border/40 bg-card/80 p-4 transition-colors hover:border-primary/20 hover:bg-muted/20;
+  }
+
+  .org-resume-date-badge {
+    @apply shrink-0 rounded-md bg-muted px-2 py-1 text-[11px] font-medium text-muted-foreground;
+  }
+
+  .org-resume-current-pill {
+    @apply mt-3 inline-flex rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary;
+  }
+
+  .org-resume-edu-card {
+    @apply rounded-lg border border-border/40 bg-card/80 p-4 transition-colors hover:border-primary/20 hover:bg-muted/20;
+  }
+
+  .org-resume-credential {
+    @apply rounded-lg border border-border/40 bg-muted/15 px-3 py-2.5;
   }
 
 }

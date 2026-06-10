@@ -10,7 +10,7 @@ const router = Router();
 router.use(authenticate);
 router.post('/avatar', upload.single('file'), fileController.uploadAvatar);
 router.post('/logo', authorize(ROLES.ORGANIZATION), upload.single('file'), fileController.uploadOrgLogo);
-router.post('/cv', upload.single('file'), fileController.upload('cv'));
+router.post('/cv', authorize(ROLES.PROFESSIONAL), upload.single('file'), fileController.uploadCv);
 router.post('/certificate', upload.single('file'), fileController.upload('certificate'));
 router.post('/license', upload.single('file'), fileController.upload('license'));
 router.post('/message-attachment', upload.single('file'), fileController.upload('message'));

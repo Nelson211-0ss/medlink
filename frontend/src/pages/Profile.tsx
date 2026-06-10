@@ -11,6 +11,7 @@ import { PageLoader, Progress, Spinner } from '@/components/ui/misc';
 import { ProfilePhotoUpload } from '@/components/ProfilePhotoUpload';
 import { OrganizationLogoUpload } from '@/components/OrganizationLogoUpload';
 import { CountrySelect } from '@/components/CountrySelect';
+import { ProfessionalResumeEditor } from '@/components/ProfessionalResumeEditor';
 import { cn, titleCase } from '@/lib/utils';
 
 const professions = ['nurse', 'doctor', 'pharmacist', 'lab_technician', 'radiographer', 'midwife', 'physiotherapist', 'caregiver'];
@@ -83,7 +84,7 @@ export default function Profile() {
       <div className="dash-page-header">
         <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-white">My profile</h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          {isOrg ? 'Update your facility details.' : 'Update credentials and contact info.'}
+          {isOrg ? 'Update your facility details.' : 'Update credentials, resume, and contact info.'}
         </p>
       </div>
 
@@ -287,14 +288,24 @@ export default function Profile() {
                   hint="Comma-separated."
                 />
                 <TextareaField
-                  label="Bio"
+                  label="Professional summary"
                   value={form.bio}
                   onChange={(v) => set('bio', v)}
-                  placeholder="Brief experience summary."
+                  placeholder="Brief overview for your resume — experience, strengths, and goals."
                   rows={4}
                   maxLength={4000}
                 />
               </FormSection>
+
+              <ProfessionalResumeEditor
+                data={{
+                  cv_url: form.cv_url as string | null,
+                  workExperience: form.workExperience as never,
+                  education: form.education as never,
+                  certifications: form.certifications as never,
+                  licenses: form.licenses as never,
+                }}
+              />
             </>
           )}
 

@@ -3,16 +3,15 @@ import { cn } from '@/lib/utils';
 
 export const DASHBOARD_COLORS = {
   blue: '#2563eb',
-  green: '#16a34a',
   orange: '#ea580c',
   red: '#dc2626',
 } as const;
 
 export const DASHBOARD_COLOR_LIST = [
   DASHBOARD_COLORS.blue,
-  DASHBOARD_COLORS.green,
-  DASHBOARD_COLORS.orange,
   DASHBOARD_COLORS.red,
+  DASHBOARD_COLORS.orange,
+  DASHBOARD_COLORS.blue,
 ] as const;
 
 const CHART_COLORS = DASHBOARD_COLOR_LIST;
@@ -22,8 +21,8 @@ export const PIPELINE_STAGE_COLORS: Record<string, string> = {
   applied: DASHBOARD_COLORS.blue,
   screening: DASHBOARD_COLORS.orange,
   interview: DASHBOARD_COLORS.orange,
-  offer: DASHBOARD_COLORS.green,
-  hired: DASHBOARD_COLORS.green,
+  offer: DASHBOARD_COLORS.red,
+  hired: DASHBOARD_COLORS.red,
   rejected: DASHBOARD_COLORS.red,
 };
 
@@ -144,11 +143,15 @@ export function DonutChart({
   centerLabel,
   centerSub,
   className,
+  valueSuffix = '',
+  labelMax = 20,
 }: {
   segments: ChartItem[];
   centerLabel: string;
   centerSub?: string;
   className?: string;
+  valueSuffix?: string;
+  labelMax?: number;
 }) {
   const total = Math.max(
     segments.reduce((s, seg) => s + seg.value, 0),
@@ -169,26 +172,38 @@ export function DonutChart({
   return (
     <div className={cn('flex flex-col items-center', className)}>
       <div
-        className="relative flex h-28 w-28 items-center justify-center rounded-full"
+        className="relative flex h-32 w-32 items-center justify-center rounded-full sm:h-36 sm:w-36"
         style={{ background: `conic-gradient(${gradientStops})` }}
         role="img"
         aria-label={centerLabel}
       >
-        <div className="flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-full bg-white dark:bg-card">
-          <span className="text-sm font-bold text-slate-900 dark:text-white">{centerLabel}</span>
-          {centerSub && <span className="text-[9px] text-slate-500">{centerSub}</span>}
+        <div className="flex h-[5.25rem] w-[5.25rem] flex-col items-center justify-center rounded-full bg-white dark:bg-card sm:h-24 sm:w-24">
+          <span className="text-base font-bold text-slate-900 dark:text-white sm:text-lg">{centerLabel}</span>
+          {centerSub && <span className="text-[10px] text-slate-500">{centerSub}</span>}
         </div>
       </div>
-      <div className="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1">
-        {segments.map((seg, i) => (
-          <span key={seg.label} className="flex items-center gap-1 text-[10px] text-slate-500">
-            <span
-              className="h-2 w-2 rounded-full"
-              style={{ backgroundColor: seg.color ?? CHART_COLORS[i % CHART_COLORS.length] }}
-            />
-            {seg.label} ({seg.value})
-          </span>
-        ))}
+      <div className="mt-3 w-full space-y-1.5">
+        {segments.map((seg, i) => {
+          const share = Math.round((seg.value / total) * 100);
+          const shortLabel =
+            seg.label.length > labelMax ? `${seg.label.slice(0, labelMax - 1)}…` : seg.label;
+          const color = seg.color ?? CHART_COLORS[i % CHART_COLORS.length];
+          return (
+            <div key={`${seg.label}-${i}`} className="flex items-center justify-between gap-2 text-xs">
+              <span className="flex min-w-0 items-center gap-1.5 text-slate-600 dark:text-slate-400">
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
+                <span className="truncate" title={seg.label}>
+                  {shortLabel}
+                </span>
+              </span>
+              <span className="shrink-0 font-semibold text-slate-900 dark:text-white">
+                {seg.value}
+                {valueSuffix}
+                <span className="ml-1 font-normal text-slate-400">({share}%)</span>
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

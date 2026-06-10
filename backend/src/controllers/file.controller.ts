@@ -5,7 +5,7 @@ import { BadRequestError, ForbiddenError } from '../utils/errors';
 import { UploadKind } from '../services/file.service';
 import { ROLES } from '../utils/constants';
 
-const { fileService, authService, organizationService } = container.services;
+const { fileService, authService, organizationService, professionalService } = container.services;
 const { userRepo, organizationRepo } = container.repositories;
 
 export const fileController = {
@@ -35,6 +35,22 @@ export const fileController = {
     const url = await fileService.resolveUrl(result.objectName);
     const user = await authService.me(req.user!.id);
     return created(res, { url, objectName: result.objectName, user }, 'Profile photo updated');
+  }),
+
+  uploadCv: asyncHandler(async (req, res) => {
+    if (req.user!.role !== ROLES.PROFESSIONAL) {
+      throw new ForbiddenError('Only professionals can upload a CV');
+    }
+    const file = (req as unknown as { file?: Express.Multer.File }).file;
+    if (!file) throw new BadRequestError('No file provided');
+    const result = await fileService.upload('cv', req.user!.id, {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+      buffer: file.buffer,
+    });
+    const url = await professionalService.setCvUrl(req.user!.id, result.objectName);
+    return created(res, { url, objectName: result.objectName }, 'CV uploaded');
   }),
 
   uploadOrgLogo: asyncHandler(async (req, res) => {

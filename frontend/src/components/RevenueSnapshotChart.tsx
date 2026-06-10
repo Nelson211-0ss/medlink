@@ -9,7 +9,7 @@ interface RevenueSnapshotChartProps {
 
 import { DASHBOARD_COLORS } from '@/components/dashboard/Charts';
 
-const BAR_COLORS = [DASHBOARD_COLORS.blue, DASHBOARD_COLORS.green, DASHBOARD_COLORS.orange] as const;
+const BAR_COLORS = [DASHBOARD_COLORS.blue, DASHBOARD_COLORS.red, DASHBOARD_COLORS.orange] as const;
 
 export function RevenueSnapshotChart({
   estimatedMRR,

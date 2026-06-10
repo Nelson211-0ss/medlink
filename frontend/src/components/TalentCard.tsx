@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { Bookmark, MapPin, Briefcase, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { titleCase } from '@/lib/utils';
+import { isPortraitCutout } from '@/lib/images';
+import { cn, titleCase } from '@/lib/utils';
 
 export interface TalentPro {
   id: string;
@@ -35,14 +36,21 @@ export function TalentCard({ pro, photo, onSave, saving }: TalentCardProps) {
   ]
     .filter(Boolean)
     .join(' · ');
+  const cutout = isPortraitCutout(photo);
 
   return (
     <article className="talent-card group flex h-full flex-col overflow-hidden rounded-xl bg-card shadow-sm ring-1 ring-border/60 transition-shadow duration-200 hover:shadow-md hover:ring-primary/25">
-      <Link to={`/candidates/${pro.id}`} className="relative block aspect-[4/3] shrink-0 overflow-hidden bg-muted">
+      <Link
+        to={`/candidates/${pro.id}`}
+        className="relative block aspect-[4/3] shrink-0 overflow-hidden bg-gradient-to-b from-muted/40 to-muted"
+      >
         <img
           src={photo}
           alt={name}
-          className="h-full w-full object-cover object-top"
+          className={cn(
+            'h-full w-full',
+            cutout ? 'object-contain object-bottom px-1' : 'object-cover object-top',
+          )}
           loading="lazy"
         />
         {verified && (

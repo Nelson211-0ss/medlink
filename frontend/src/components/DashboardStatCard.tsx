@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 
 const ICON_STYLES = [
   'dash-stat-icon-blue',
-  'dash-stat-icon-green',
+  'dash-stat-icon-red',
   'dash-stat-icon-orange',
   'dash-stat-icon-red',
 ] as const;

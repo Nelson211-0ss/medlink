@@ -10,6 +10,15 @@ export async function uploadAvatar(file: File): Promise<{ url: string; user: Aut
   return data.data;
 }
 
+export async function uploadCv(file: File): Promise<{ url: string }> {
+  const form = new FormData();
+  form.append('file', file);
+  const { data } = await api.post<ApiEnvelope<{ url: string }>>('/files/cv', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data.data;
+}
+
 export async function uploadOrgLogo(file: File): Promise<{ url: string; organization: Record<string, unknown> }> {
   const form = new FormData();
   form.append('file', file);

@@ -22,6 +22,10 @@ router.post('/me/education', ...onlyPro, professionalController.addEducation);
 router.post('/me/certifications', ...onlyPro, professionalController.addCertification);
 router.post('/me/licenses', ...onlyPro, professionalController.addLicense);
 router.post('/me/experience', ...onlyPro, professionalController.addWorkExperience);
+router.delete('/me/education/:id', ...onlyPro, professionalController.deleteEducation);
+router.delete('/me/certifications/:id', ...onlyPro, professionalController.deleteCertification);
+router.delete('/me/licenses/:id', ...onlyPro, professionalController.deleteLicense);
+router.delete('/me/experience/:id', ...onlyPro, professionalController.deleteWorkExperience);
 
 router.get('/:id', ...orgOrAdmin, professionalController.getPublicProfile);
 

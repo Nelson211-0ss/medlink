@@ -38,6 +38,22 @@ export const professionalController = {
     return created(res, await professionalService.addWorkExperience(req.user!.id, req.body));
   }),
 
+  deleteEducation: asyncHandler(async (req, res) => {
+    return ok(res, await professionalService.deleteEducation(req.user!.id, req.params.id));
+  }),
+
+  deleteCertification: asyncHandler(async (req, res) => {
+    return ok(res, await professionalService.deleteCertification(req.user!.id, req.params.id));
+  }),
+
+  deleteLicense: asyncHandler(async (req, res) => {
+    return ok(res, await professionalService.deleteLicense(req.user!.id, req.params.id));
+  }),
+
+  deleteWorkExperience: asyncHandler(async (req, res) => {
+    return ok(res, await professionalService.deleteWorkExperience(req.user!.id, req.params.id));
+  }),
+
   myMatches: asyncHandler(async (req, res) => {
     const profile = await professionalService.getByUserId(req.user!.id);
     return ok(res, await matchingService.jobsForProfessional(profile.id));

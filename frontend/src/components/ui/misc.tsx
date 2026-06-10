@@ -26,6 +26,13 @@ export function Avatar({
   last?: string;
   className?: string;
 }) {
+  const [failed, setFailed] = React.useState(false);
+  const showImage = !!src && !failed;
+
+  React.useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
   return (
     <div
       className={cn(
@@ -33,8 +40,13 @@ export function Avatar({
         className,
       )}
     >
-      {src ? (
-        <img src={src} alt="avatar" className="h-full w-full object-cover" />
+      {showImage ? (
+        <img
+          src={src}
+          alt="avatar"
+          className="h-full w-full object-cover"
+          onError={() => setFailed(true)}
+        />
       ) : (
         initials(first, last)
       )}

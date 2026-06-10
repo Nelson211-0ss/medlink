@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { EmptyState } from '@/components/ui/misc';
 import { TalentCard, TalentCardSkeleton, type TalentPro } from '@/components/TalentCard';
 import { titleCase } from '@/lib/utils';
-import { nurseSlides, professionPortraits } from '@/lib/images';
+import { getProfessionalPhoto } from '@/lib/images';
 
 interface SearchResult {
   data: TalentPro[];
@@ -26,11 +26,11 @@ const professions = [
 ] as const;
 
 function proPhoto(pro: TalentPro, index: number): string {
-  if (pro.avatar) return pro.avatar;
-  if (pro.profession && professionPortraits[pro.profession]) {
-    return professionPortraits[pro.profession];
-  }
-  return nurseSlides[index % nurseSlides.length].src;
+  return getProfessionalPhoto({
+    avatar: pro.avatar,
+    profession: pro.profession,
+    id: pro.id || String(index),
+  });
 }
 
 export default function CandidateSearch() {

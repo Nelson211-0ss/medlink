@@ -43,7 +43,6 @@ interface ProDash {
   recommendedJobs: { job: { id: string; title: string; city?: string }; matchScore: number; reasons: string[] }[];
   savedJobs: number;
   invitations: number;
-  unreadNotifications: number;
 }
 interface OrgDash {
   verificationStatus: string;
@@ -118,10 +117,10 @@ function ProfessionalDashboard({ d }: { d: ProDash }) {
 
   const appliedJobIds = new Set(myApplications?.map((a) => a.job_id) ?? []);
 
-  const avgMatch =
-    d.recommendedJobs?.length
-      ? Math.round(d.recommendedJobs.reduce((s, j) => s + j.matchScore, 0) / d.recommendedJobs.length)
-      : 0;
+  const topMatches = uniqueRecommendedJobs(d.recommendedJobs ?? []);
+  const avgMatch = topMatches.length
+    ? Math.round(topMatches.reduce((s, j) => s + j.matchScore, 0) / topMatches.length)
+    : 0;
 
   return (
     <>
@@ -130,9 +129,8 @@ function ProfessionalDashboard({ d }: { d: ProDash }) {
         <DashboardStatCard icon={Bell} label="Invitations received" numeric={d.invitations} sub="This month" colorIndex={1} />
         <DashboardStatCard icon={Briefcase} label="Saved jobs" numeric={d.savedJobs} colorIndex={2} />
         <DashboardStatCard icon={Target} label="Avg. match score" numeric={avgMatch} suffix="%" colorIndex={3} />
-        <DashboardStatCard icon={Bell} label="Unread notifications" numeric={d.unreadNotifications} colorIndex={4} />
-        <DashboardStatCard icon={Clock} label="Active applications" numeric={d.activeApplications ?? 0} colorIndex={5} />
-        <DashboardStatCard icon={CheckCircle2} label="Offers received" numeric={d.offersReceived ?? 0} colorIndex={6} />
+        <DashboardStatCard icon={Clock} label="Active applications" numeric={d.activeApplications ?? 0} colorIndex={4} />
+        <DashboardStatCard icon={CheckCircle2} label="Offers received" numeric={d.offersReceived ?? 0} colorIndex={5} />
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3 lg:items-stretch">
@@ -154,12 +152,14 @@ function ProfessionalDashboard({ d }: { d: ProDash }) {
             <CardTitle className="text-base">Top match scores</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-1 flex-col justify-center p-4 pt-0">
-            {d.recommendedJobs?.length ? (
-              <HorizontalBarChart
+            {topMatches.length ? (
+              <DonutChart
                 valueSuffix="%"
-                labelClassName="normal-case"
-                items={d.recommendedJobs.slice(0, 5).map((m, i) => ({
-                  label: m.job.title.length > 22 ? `${m.job.title.slice(0, 21)}…` : m.job.title,
+                labelMax={24}
+                centerLabel={`${avgMatch}%`}
+                centerSub="avg match"
+                segments={topMatches.map((m, i) => ({
+                  label: m.job.title,
                   value: m.matchScore,
                   color: DASHBOARD_COLOR_LIST[i % DASHBOARD_COLOR_LIST.length],
                 }))}
@@ -201,8 +201,8 @@ function ProfessionalDashboard({ d }: { d: ProDash }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 p-4 pt-0">
-          {d.recommendedJobs?.length ? (
-            d.recommendedJobs.map((m) => (
+          {topMatches.length ? (
+            topMatches.map((m) => (
               <div
                 key={m.job.id}
                 className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-slate-50 p-3 dark:bg-slate-800/40"
@@ -230,6 +230,19 @@ function ProfessionalDashboard({ d }: { d: ProDash }) {
       </Card>
     </>
   );
+}
+
+function uniqueRecommendedJobs(
+  jobs: ProDash['recommendedJobs'],
+): ProDash['recommendedJobs'] {
+  const byId = new Map<string, ProDash['recommendedJobs'][number]>();
+  for (const m of jobs) {
+    const existing = byId.get(m.job.id);
+    if (!existing || m.matchScore > existing.matchScore) {
+      byId.set(m.job.id, m);
+    }
+  }
+  return [...byId.values()].sort((a, b) => b.matchScore - a.matchScore).slice(0, 5);
 }
 
 const PIPELINE_STAGES = ['applied', 'screening', 'interview', 'offer', 'hired', 'rejected'] as const;
@@ -278,7 +291,7 @@ function OrganizationDashboard({ d }: { d: OrgDash }) {
               centerLabel={`${hireRate}%`}
               centerSub="hired"
               segments={[
-                { label: 'Hired', value: hired, color: DASHBOARD_COLORS.green },
+                { label: 'Hired', value: hired, color: DASHBOARD_COLORS.red },
                 { label: 'In progress', value: Math.max(pipelineTotal - hired - (d.pipeline?.rejected ?? 0), 0), color: DASHBOARD_COLORS.blue },
                 { label: 'Rejected', value: d.pipeline?.rejected ?? 0, color: DASHBOARD_COLORS.red },
               ]}
@@ -345,7 +358,7 @@ function AdminDashboard({ d }: { d: AdminStats }) {
             <VerticalBarChart
               items={[
                 { label: 'Users', value: d.totalUsers, color: DASHBOARD_COLORS.blue },
-                { label: 'Pros', value: d.totalProfessionals, color: DASHBOARD_COLORS.green },
+                { label: 'Pros', value: d.totalProfessionals, color: DASHBOARD_COLORS.red },
                 { label: 'Orgs', value: d.totalOrganizations, color: DASHBOARD_COLORS.orange },
                 { label: 'Jobs', value: d.activeJobs, color: DASHBOARD_COLORS.red },
                 { label: 'Apps', value: d.totalApplications ?? 0, color: DASHBOARD_COLORS.blue },
@@ -362,7 +375,7 @@ function AdminDashboard({ d }: { d: AdminStats }) {
             <HorizontalBarChart
               items={[
                 { label: 'Professionals', value: d.totalProfessionals, color: DASHBOARD_COLORS.blue },
-                { label: 'Organizations', value: d.totalOrganizations, color: DASHBOARD_COLORS.green },
+                { label: 'Organizations', value: d.totalOrganizations, color: DASHBOARD_COLORS.red },
                 { label: 'Verified pros', value: d.verifiedProfessionals, color: DASHBOARD_COLORS.orange },
                 { label: 'Paid subs', value: d.paidSubscriptions, color: DASHBOARD_COLORS.red },
               ]}
@@ -379,7 +392,7 @@ function AdminDashboard({ d }: { d: AdminStats }) {
               centerLabel={`${verificationRate}%`}
               centerSub="verified"
               segments={[
-                { label: 'Verified', value: d.verifiedProfessionals, color: DASHBOARD_COLORS.green },
+                { label: 'Verified', value: d.verifiedProfessionals, color: DASHBOARD_COLORS.red },
                 { label: 'Unverified', value: d.unverifiedProfessionals ?? Math.max(d.totalProfessionals - d.verifiedProfessionals, 0), color: DASHBOARD_COLORS.orange },
               ]}
             />

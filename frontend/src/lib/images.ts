@@ -35,6 +35,27 @@ export const professionPortraits: Record<string, string> = {
   caregiver: u('1582750433449-648ed127bb54', 800),
 };
 
+/** Local transparent PNG cutouts — need contain positioning, not cover crop. */
+export function isPortraitCutout(src: string) {
+  return src.startsWith('/nurses/');
+}
+
+export function getProfessionalPhoto(opts: {
+  avatar?: string | null;
+  profession?: string | null;
+  id?: string;
+}): string {
+  if (opts.avatar) return opts.avatar;
+  if (opts.profession && professionPortraits[opts.profession]) {
+    return professionPortraits[opts.profession];
+  }
+  if (opts.id) {
+    const index = opts.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    return nurseSlides[index % nurseSlides.length].src;
+  }
+  return nurseSlides[0].src;
+}
+
 export const nurseSlides = [
   {
     src: '/nurses/44989995_9110036.png',

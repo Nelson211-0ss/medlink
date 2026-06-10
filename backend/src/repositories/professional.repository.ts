@@ -37,6 +37,13 @@ export class ProfessionalRepository extends BaseRepository<ProfessionalRow> {
     ]);
   }
 
+  async updateCvUrl(id: string, cvUrl: string | null): Promise<void> {
+    await query('UPDATE healthcare_professionals SET cv_url = $1, updated_at = now() WHERE id = $2', [
+      cvUrl,
+      id,
+    ]);
+  }
+
   async countVerified(): Promise<number> {
     const { rows } = await query<{ count: string }>(
       `SELECT COUNT(*)::text AS count FROM healthcare_professionals WHERE verification_status = 'verified'`,

@@ -92,6 +92,7 @@ const applicationService = new ApplicationService(
   matchingService,
   notificationService,
   emailService,
+  fileService,
 );
 
 const messageService = new MessageService(messageRepo, notificationService);

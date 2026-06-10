@@ -6,6 +6,7 @@ import { UserRepository } from '../repositories/user.repository';
 import { MatchingService } from './matching.service';
 import { NotificationService } from './notification.service';
 import { EmailService } from './email.service';
+import { FileService } from './file.service';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../utils/errors';
 import { APPLICATION_STAGES, NOTIFICATION_TYPES } from '../utils/constants';
 
@@ -19,7 +20,17 @@ export class ApplicationService {
     private matching: MatchingService,
     private notifications: NotificationService,
     private email: EmailService,
+    private files: FileService,
   ) {}
+
+  private async withResolvedAvatars<T extends { avatar: string | null }>(rows: T[]) {
+    return Promise.all(
+      rows.map(async (row) => ({
+        ...row,
+        avatar: await this.files.resolveUrl(row.avatar),
+      })),
+    );
+  }
 
   async apply(userId: string, jobId: string, data: { coverLetter?: string; cvUrl?: string }) {
     const profile = await this.professionals.findByUserId(userId);
@@ -71,13 +82,13 @@ export class ApplicationService {
     if (!job) throw new NotFoundError('Job not found');
     const org = await this.organizations.findByUserId(userId);
     if (!org || org.id !== job.organization_id) throw new ForbiddenError();
-    return this.applications.listForJob(jobId);
+    return this.withResolvedAvatars(await this.applications.listForJob(jobId));
   }
 
   async listInbox(userId: string) {
     const org = await this.organizations.findByUserId(userId);
     if (!org) throw new ForbiddenError('Organization profile required');
-    return this.applications.listForOrganization(org.id);
+    return this.withResolvedAvatars(await this.applications.listForOrganization(org.id));
   }
 
   async updateStage(userId: string, applicationId: string, stage: string) {
