@@ -38,23 +38,25 @@ export function HorizontalBarChart({
   showValues = true,
   valueSuffix = '',
   labelClassName,
+  compact = false,
 }: {
   items: ChartItem[];
   className?: string;
   showValues?: boolean;
   valueSuffix?: string;
   labelClassName?: string;
+  compact?: boolean;
 }) {
   const max = Math.max(...items.map((i) => i.value), 1);
 
   return (
-    <div className={cn('space-y-2.5', className)}>
+    <div className={cn(compact ? 'space-y-1.5' : 'space-y-2.5', className)}>
       {items.map((item, i) => {
         const pct = (item.value / max) * 100;
         const color = item.color ?? CHART_COLORS[i % CHART_COLORS.length];
         return (
           <div key={`${item.label}-${i}`}>
-            <div className="mb-1 flex items-center justify-between gap-2 text-xs">
+            <div className={cn('mb-0.5 flex items-center justify-between gap-2', compact ? 'text-[11px]' : 'text-xs')}>
               <span
                 className={cn('truncate text-slate-600 dark:text-slate-400', labelClassName ?? 'capitalize')}
                 title={item.label}
@@ -67,7 +69,7 @@ export function HorizontalBarChart({
                 </span>
               )}
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+            <div className={cn('overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800', compact ? 'h-1.5' : 'h-2')}>
               <div
                 className="h-full rounded-full transition-all"
                 style={{ width: `${pct}%`, backgroundColor: color }}
@@ -145,6 +147,8 @@ export function DonutChart({
   className,
   valueSuffix = '',
   labelMax = 20,
+  compact = false,
+  showLegend = true,
 }: {
   segments: ChartItem[];
   centerLabel: string;
@@ -152,6 +156,8 @@ export function DonutChart({
   className?: string;
   valueSuffix?: string;
   labelMax?: number;
+  compact?: boolean;
+  showLegend?: boolean;
 }) {
   const total = Math.max(
     segments.reduce((s, seg) => s + seg.value, 0),
@@ -172,17 +178,28 @@ export function DonutChart({
   return (
     <div className={cn('flex flex-col items-center', className)}>
       <div
-        className="relative flex h-32 w-32 items-center justify-center rounded-full sm:h-36 sm:w-36"
+        className={cn(
+          'relative flex items-center justify-center rounded-full',
+          compact ? 'h-24 w-24' : 'h-32 w-32 sm:h-36 sm:w-36',
+        )}
         style={{ background: `conic-gradient(${gradientStops})` }}
         role="img"
         aria-label={centerLabel}
       >
-        <div className="flex h-[5.25rem] w-[5.25rem] flex-col items-center justify-center rounded-full bg-white dark:bg-card sm:h-24 sm:w-24">
-          <span className="text-base font-bold text-slate-900 dark:text-white sm:text-lg">{centerLabel}</span>
+        <div
+          className={cn(
+            'flex flex-col items-center justify-center rounded-full bg-white dark:bg-card',
+            compact ? 'h-16 w-16' : 'h-[5.25rem] w-[5.25rem] sm:h-24 sm:w-24',
+          )}
+        >
+          <span className={cn('font-bold text-slate-900 dark:text-white', compact ? 'text-sm' : 'text-base sm:text-lg')}>
+            {centerLabel}
+          </span>
           {centerSub && <span className="text-[10px] text-slate-500">{centerSub}</span>}
         </div>
       </div>
-      <div className="mt-3 w-full space-y-1.5">
+      {showLegend && (
+      <div className={cn('w-full space-y-1.5', compact ? 'mt-2' : 'mt-3')}>
         {segments.map((seg, i) => {
           const share = Math.round((seg.value / total) * 100);
           const shortLabel =
@@ -205,6 +222,7 @@ export function DonutChart({
           );
         })}
       </div>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ interface RevenueSnapshotChartProps {
   paidSubscriptions: number;
   activeJobs: number;
   totalUsers: number;
+  compact?: boolean;
 }
 
 import { DASHBOARD_COLORS } from '@/components/dashboard/Charts';
@@ -16,6 +17,7 @@ export function RevenueSnapshotChart({
   paidSubscriptions,
   activeJobs,
   totalUsers,
+  compact = false,
 }: RevenueSnapshotChartProps) {
   const freeUsers = Math.max(totalUsers - paidSubscriptions, 0);
   const barMetrics = [
@@ -29,29 +31,28 @@ export function RevenueSnapshotChart({
   const paidPct = Math.round((paidSubscriptions / donutTotal) * 100);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-end justify-between">
+    <div className={compact ? 'space-y-2' : 'space-y-4'}>
+      <div className="flex items-end justify-between gap-3">
         <div>
-          <p className="text-xs text-slate-500">Monthly recurring revenue</p>
-          <p className="text-2xl font-bold text-slate-900 dark:text-white">
+          <p className="text-[10px] font-medium uppercase tracking-wide text-slate-500">MRR</p>
+          <p className={compact ? 'text-lg font-bold text-slate-900 dark:text-white' : 'text-2xl font-bold text-slate-900 dark:text-white'}>
             $<AnimatedCounter end={estimatedMRR} />
           </p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-slate-500">Paying subscribers</p>
-          <p className="text-lg font-semibold text-slate-900 dark:text-white">
+          <p className="text-[10px] font-medium uppercase tracking-wide text-slate-500">Paid subs</p>
+          <p className={compact ? 'text-base font-semibold text-slate-900 dark:text-white' : 'text-lg font-semibold text-slate-900 dark:text-white'}>
             <AnimatedCounter end={paidSubscriptions} />
           </p>
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
-        {/* Bar chart */}
+      <div className={compact ? 'grid gap-2 sm:grid-cols-[1fr_auto] sm:items-center' : 'grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center'}>
         <div>
-          <p className="mb-2 text-xs font-medium text-slate-500">Revenue drivers</p>
+          {!compact && <p className="mb-2 text-xs font-medium text-slate-500">Revenue drivers</p>}
           <svg
             viewBox="0 0 280 120"
-            className="h-28 w-full"
+            className={compact ? 'h-20 w-full' : 'h-28 w-full'}
             style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
             role="img"
             aria-label="Revenue metrics bar chart"
@@ -92,21 +93,21 @@ export function RevenueSnapshotChart({
 
         {/* Donut chart */}
         <div className="flex flex-col items-center">
-          <p className="mb-1 text-xs font-medium text-slate-500">User mix</p>
+          {!compact && <p className="mb-1 text-xs font-medium text-slate-500">User mix</p>}
           <div
-            className="relative flex h-28 w-28 items-center justify-center rounded-full"
+            className={compact ? 'relative flex h-20 w-20 items-center justify-center rounded-full' : 'relative flex h-28 w-28 items-center justify-center rounded-full'}
             style={{
               background: `conic-gradient(${DASHBOARD_COLORS.blue} 0% ${paidPct}%, ${DASHBOARD_COLORS.orange} ${paidPct}% 100%)`,
             }}
             role="img"
             aria-label={`Paid users ${paidPct} percent`}
           >
-            <div className="flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-full bg-white dark:bg-card">
-              <span className="text-sm font-bold text-slate-900 dark:text-white">{paidPct}%</span>
-              <span className="text-[9px] text-slate-500">paid</span>
+            <div className={compact ? 'flex h-12 w-12 flex-col items-center justify-center rounded-full bg-white dark:bg-card' : 'flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-full bg-white dark:bg-card'}>
+              <span className={compact ? 'text-xs font-bold text-slate-900 dark:text-white' : 'text-sm font-bold text-slate-900 dark:text-white'}>{paidPct}%</span>
+              {!compact && <span className="text-[9px] text-slate-500">paid</span>}
             </div>
           </div>
-          <div className="mt-2 flex gap-3 text-[10px] text-slate-500">
+          <div className={compact ? 'mt-1 flex gap-2 text-[9px] text-slate-500' : 'mt-2 flex gap-3 text-[10px] text-slate-500'}>
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-blue-600" />
               Paid ({paidSubscriptions})

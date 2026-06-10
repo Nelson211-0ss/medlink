@@ -84,17 +84,28 @@ export default function Dashboard() {
 
   if (isLoading) return <PageLoader />;
 
+  const isAdmin = user.role === 'admin';
+
   return (
-    <div className="relative space-y-5">
-      <div className="dash-page-header">
-        <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-white">
-          Welcome back, {user.firstName}
-        </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          {user.role === 'professional' && 'Track applications, matches, and invitations.'}
-          {user.role === 'organization' && 'Monitor hiring pipeline, applicants, and facility reach.'}
-          {user.role === 'admin' && 'Platform overview — users, jobs, revenue and verification.'}
-        </p>
+    <div className={isAdmin ? 'admin-dashboard-page' : 'relative space-y-5'}>
+      <div className={isAdmin ? 'admin-dashboard-header' : 'dash-page-header'}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className={isAdmin ? 'admin-dashboard-title' : 'text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-white'}>
+              Welcome back, {user.firstName}
+            </h1>
+            <p className={isAdmin ? 'admin-dashboard-subtitle' : 'mt-1 text-sm text-slate-500 dark:text-slate-400'}>
+              {user.role === 'professional' && 'Track applications, matches, and invitations.'}
+              {user.role === 'organization' && 'Monitor hiring pipeline, applicants, and facility reach.'}
+              {user.role === 'admin' && 'Platform overview — users, jobs, revenue and verification.'}
+            </p>
+          </div>
+          {isAdmin && (
+            <Button variant="outline" size="sm" className="shrink-0" asChild>
+              <Link to="/admin">Admin panel</Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       {user.role === 'professional' && <ProfessionalDashboard d={data as ProDash} />}
@@ -327,106 +338,99 @@ function OrganizationDashboard({ d }: { d: OrgDash }) {
   );
 }
 
+function AdminDashPanel({
+  title,
+  children,
+  className,
+}: {
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <Card className={className ?? 'admin-dash-panel'}>
+      <CardHeader className="admin-dash-panel-header">
+        <CardTitle className="admin-dash-panel-title">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="admin-dash-panel-body">{children}</CardContent>
+    </Card>
+  );
+}
+
 function AdminDashboard({ d }: { d: AdminStats }) {
   const verificationRate =
     d.totalProfessionals > 0 ? Math.round((d.verifiedProfessionals / d.totalProfessionals) * 100) : 0;
 
   return (
-    <>
-      <div className="dash-stat-grid">
-        <DashboardStatCard icon={Users} label="Total platform users" numeric={d.totalUsers} colorIndex={0} />
-        <DashboardStatCard icon={Users} label="Healthcare organizations" numeric={d.totalOrganizations} colorIndex={1} />
-        <DashboardStatCard icon={CheckCircle2} label="Verified professionals" numeric={d.verifiedProfessionals} colorIndex={2} />
-        <DashboardStatCard icon={Briefcase} label="Active job listings" numeric={d.activeJobs} colorIndex={3} />
-        <DashboardStatCard icon={TrendingUp} label="Paid subscriptions" numeric={d.paidSubscriptions} colorIndex={4} />
-        <DashboardStatCard
-          icon={TrendingUp}
-          label="Estimated MRR"
-          numeric={d.estimatedMRR}
-          prefix="$"
-          colorIndex={5}
-        />
-        <DashboardStatCard icon={FileText} label="Total applications" numeric={d.totalApplications ?? 0} colorIndex={6} />
+    <div className="admin-dashboard">
+      <div className="admin-dash-stats">
+        <DashboardStatCard icon={Users} label="Total users" numeric={d.totalUsers} colorIndex={0} className="admin-dash-stat" />
+        <DashboardStatCard icon={Users} label="Organizations" numeric={d.totalOrganizations} colorIndex={1} className="admin-dash-stat" />
+        <DashboardStatCard icon={CheckCircle2} label="Verified pros" numeric={d.verifiedProfessionals} colorIndex={2} className="admin-dash-stat" />
+        <DashboardStatCard icon={Briefcase} label="Active jobs" numeric={d.activeJobs} colorIndex={3} className="admin-dash-stat" />
+        <DashboardStatCard icon={TrendingUp} label="Paid subs" numeric={d.paidSubscriptions} colorIndex={4} className="admin-dash-stat" />
+        <DashboardStatCard icon={TrendingUp} label="Est. MRR" numeric={d.estimatedMRR} prefix="$" colorIndex={5} className="admin-dash-stat" />
+        <DashboardStatCard icon={FileText} label="Applications" numeric={d.totalApplications ?? 0} colorIndex={6} className="admin-dash-stat" />
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-3">
-        <Card className="dash-panel">
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-base">Platform scale</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <VerticalBarChart
-              items={[
-                { label: 'Users', value: d.totalUsers, color: DASHBOARD_COLORS.blue },
-                { label: 'Pros', value: d.totalProfessionals, color: DASHBOARD_COLORS.red },
-                { label: 'Orgs', value: d.totalOrganizations, color: DASHBOARD_COLORS.orange },
-                { label: 'Jobs', value: d.activeJobs, color: DASHBOARD_COLORS.red },
-                { label: 'Apps', value: d.totalApplications ?? 0, color: DASHBOARD_COLORS.blue },
-              ]}
-            />
-          </CardContent>
-        </Card>
+      <div className="admin-dash-grid">
+        <AdminDashPanel title="Platform scale">
+          <VerticalBarChart
+            compact
+            height={72}
+            items={[
+              { label: 'Users', value: d.totalUsers, color: DASHBOARD_COLORS.blue },
+              { label: 'Pros', value: d.totalProfessionals, color: DASHBOARD_COLORS.red },
+              { label: 'Orgs', value: d.totalOrganizations, color: DASHBOARD_COLORS.orange },
+              { label: 'Jobs', value: d.activeJobs, color: DASHBOARD_COLORS.red },
+              { label: 'Apps', value: d.totalApplications ?? 0, color: DASHBOARD_COLORS.blue },
+            ]}
+          />
+        </AdminDashPanel>
 
-        <Card className="dash-panel">
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-base">User breakdown</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 p-4 pt-0">
-            <HorizontalBarChart
-              items={[
-                { label: 'Professionals', value: d.totalProfessionals, color: DASHBOARD_COLORS.blue },
-                { label: 'Organizations', value: d.totalOrganizations, color: DASHBOARD_COLORS.red },
-                { label: 'Verified pros', value: d.verifiedProfessionals, color: DASHBOARD_COLORS.orange },
-                { label: 'Paid subs', value: d.paidSubscriptions, color: DASHBOARD_COLORS.red },
-              ]}
-            />
-          </CardContent>
-        </Card>
+        <AdminDashPanel title="User breakdown">
+          <HorizontalBarChart
+            compact
+            items={[
+              { label: 'Professionals', value: d.totalProfessionals, color: DASHBOARD_COLORS.blue },
+              { label: 'Organizations', value: d.totalOrganizations, color: DASHBOARD_COLORS.red },
+              { label: 'Verified pros', value: d.verifiedProfessionals, color: DASHBOARD_COLORS.orange },
+              { label: 'Paid subs', value: d.paidSubscriptions, color: DASHBOARD_COLORS.red },
+            ]}
+          />
+        </AdminDashPanel>
 
-        <Card className="dash-panel">
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-base">Verification health</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 p-4 pt-0">
-            <DonutChart
-              centerLabel={`${verificationRate}%`}
-              centerSub="verified"
-              segments={[
-                { label: 'Verified', value: d.verifiedProfessionals, color: DASHBOARD_COLORS.red },
-                { label: 'Unverified', value: d.unverifiedProfessionals ?? Math.max(d.totalProfessionals - d.verifiedProfessionals, 0), color: DASHBOARD_COLORS.orange },
-              ]}
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <InsightTile label="Active jobs" value={d.activeJobs} hint="Open listings" />
-              <InsightTile label="Applications" value={d.totalApplications ?? 0} hint="Platform-wide" />
-              <InsightTile label="Paid subs" value={d.paidSubscriptions} hint="Revenue base" />
-              <InsightTile
-                label="Jobs per org"
-                value={d.totalOrganizations > 0 ? Math.round(d.activeJobs / d.totalOrganizations) : 0}
-                hint="Avg. listing density"
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        <AdminDashPanel title="Verification health">
+          <DonutChart
+            compact
+            showLegend={false}
+            centerLabel={`${verificationRate}%`}
+            centerSub="verified"
+            segments={[
+              { label: 'Verified', value: d.verifiedProfessionals, color: DASHBOARD_COLORS.red },
+              {
+                label: 'Unverified',
+                value: d.unverifiedProfessionals ?? Math.max(d.totalProfessionals - d.verifiedProfessionals, 0),
+                color: DASHBOARD_COLORS.orange,
+              },
+            ]}
+          />
+          <div className="admin-dash-mini-stats">
+            <InsightTile label="Active jobs" value={d.activeJobs} hint="Open listings" />
+            <InsightTile label="Applications" value={d.totalApplications ?? 0} hint="Platform-wide" />
+          </div>
+        </AdminDashPanel>
 
-      <Card className="dash-panel">
-        <CardHeader className="p-4 pb-2">
-          <CardTitle className="text-base">Revenue snapshot</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0">
+        <AdminDashPanel title="Revenue snapshot" className="admin-dash-panel admin-dash-panel--revenue">
           <RevenueSnapshotChart
+            compact
             estimatedMRR={d.estimatedMRR}
             paidSubscriptions={d.paidSubscriptions}
             activeJobs={d.activeJobs}
             totalUsers={d.totalUsers}
           />
-        </CardContent>
-      </Card>
-
-      <Button asChild>
-        <Link to="/admin">Open admin panel</Link>
-      </Button>
-    </>
+        </AdminDashPanel>
+      </div>
+    </div>
   );
 }

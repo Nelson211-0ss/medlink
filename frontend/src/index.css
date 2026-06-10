@@ -98,6 +98,78 @@
     @apply mb-1;
   }
 
+  .admin-dashboard-page {
+    @apply mx-auto w-full max-w-[1400px] space-y-2.5;
+  }
+
+  .admin-dashboard-header {
+    @apply shrink-0;
+  }
+
+  .admin-dashboard-title {
+    @apply text-lg font-bold tracking-tight text-slate-900 dark:text-white sm:text-xl;
+  }
+
+  .admin-dashboard-subtitle {
+    @apply mt-0.5 text-xs text-slate-500 dark:text-slate-400;
+  }
+
+  .admin-dashboard {
+    @apply flex flex-col gap-2.5;
+  }
+
+  .admin-dash-stats {
+    @apply grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7;
+  }
+
+  .admin-dash-stat {
+    @apply px-2.5 py-2;
+  }
+
+  .admin-dash-stat p:first-of-type {
+    @apply mt-1 text-lg font-bold leading-tight;
+  }
+
+  .admin-dash-stat p:last-of-type {
+    @apply mt-0.5 text-[10px] leading-snug;
+  }
+
+  .admin-dash-stat .dash-stat-icon {
+    @apply h-6 w-6;
+  }
+
+  .admin-dash-grid {
+    @apply grid grid-cols-1 gap-2.5 sm:grid-cols-2 2xl:grid-cols-4;
+  }
+
+  .admin-dash-panel {
+    @apply flex min-h-0 flex-col rounded-lg border-0 bg-white shadow-sm dark:bg-card;
+  }
+
+  .admin-dash-panel-header {
+    @apply shrink-0 p-3 pb-1;
+  }
+
+  .admin-dash-panel-title {
+    @apply text-sm font-semibold;
+  }
+
+  .admin-dash-panel-body {
+    @apply flex min-h-0 flex-1 flex-col justify-center p-3 pt-0;
+  }
+
+  .admin-dash-panel--revenue .admin-dash-panel-body {
+    @apply justify-start;
+  }
+
+  .admin-dash-mini-stats {
+    @apply mt-2 grid grid-cols-2 gap-1.5;
+  }
+
+  .admin-dash-mini-stats > div {
+    @apply !p-2;
+  }
+
   .app-sidebar {
     @apply fixed z-40 flex w-[17rem] flex-col border border-border/50 bg-[hsl(var(--sidebar))] shadow-xl shadow-slate-900/5 transition-transform duration-300 ease-out;
     @apply inset-y-0 left-0 lg:inset-y-auto lg:left-4 lg:top-4 lg:bottom-4 lg:rounded-2xl;
