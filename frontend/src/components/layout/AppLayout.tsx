@@ -30,21 +30,97 @@ interface NavItem {
   to: string;
   label: string;
   icon: React.ElementType;
-  roles?: Role[];
+  end?: boolean;
 }
 
-const NAV: NavItem[] = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/jobs', label: 'Jobs', icon: Briefcase },
-  { to: '/candidates', label: 'Find Talent', icon: Search, roles: ['organization', 'admin'] },
-  { to: '/applications', label: 'Applications', icon: FileText },
-  { to: '/messages', label: 'Messages', icon: MessageSquare },
-  { to: '/profile', label: 'Profile', icon: User },
-  { to: '/billing', label: 'Billing', icon: CreditCard },
-  { to: '/admin', label: 'Admin', icon: ShieldCheck, roles: ['admin'] },
-  { to: '/admin/professionals', label: 'Professionals', icon: Users, roles: ['admin'] },
-  { to: '/admin/organizations', label: 'Organizations', icon: Building2, roles: ['admin'] },
+interface NavSection {
+  label?: string;
+  roles?: Role[];
+  items: NavItem[];
+}
+
+const NAV_SECTIONS: NavSection[] = [
+  {
+    items: [
+      { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { to: '/jobs', label: 'Jobs', icon: Briefcase },
+      { to: '/candidates', label: 'Find Talent', icon: Search },
+      { to: '/applications', label: 'Applications', icon: FileText },
+      { to: '/messages', label: 'Messages', icon: MessageSquare },
+      { to: '/profile', label: 'Profile', icon: User },
+      { to: '/billing', label: 'Billing', icon: CreditCard },
+    ],
+  },
+  {
+    label: 'Administration',
+    roles: ['admin'],
+    items: [
+      { to: '/admin', label: 'Overview', icon: ShieldCheck, end: true },
+      { to: '/admin/professionals', label: 'Professionals', icon: Users },
+      { to: '/admin/organizations', label: 'Organizations', icon: Building2 },
+    ],
+  },
 ];
+
+const ORG_ONLY_PATHS = new Set(['/candidates']);
+
+function SidebarNav({
+  sections,
+  role,
+  onNavigate,
+}: {
+  sections: NavSection[];
+  role?: Role;
+  onNavigate: () => void;
+}) {
+  const visible = sections
+    .filter((section) => !section.roles || (role && section.roles.includes(role)))
+    .map((section) => ({
+      ...section,
+      items: section.items.filter(
+        (item) => !ORG_ONLY_PATHS.has(item.to) || role === 'organization' || role === 'admin',
+      ),
+    }))
+    .filter((section) => section.items.length > 0);
+
+  return (
+    <nav className="app-sidebar-nav">
+      {visible.map((section, index) => (
+        <div key={section.label ?? `main-${index}`} className="app-sidebar-section">
+          {section.label && <p className="app-sidebar-section-label">{section.label}</p>}
+          <ul className="app-sidebar-list">
+            {section.items.map((item) => (
+              <li key={item.to}>
+                <NavLink
+                  to={item.to}
+                  end={item.end}
+                  onClick={onNavigate}
+                  className={({ isActive }) =>
+                    cn('app-sidebar-link', isActive && 'app-sidebar-link--active')
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <span
+                        className={cn(
+                          'app-sidebar-link-icon',
+                          isActive && 'app-sidebar-link-icon--active',
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                      </span>
+                      <span className="app-sidebar-link-label">{item.label}</span>
+                    </>
+                  )}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </nav>
+  );
+}
 
 export function AppLayout() {
   const { user } = useAuthStore();
@@ -57,94 +133,99 @@ export function AppLayout() {
     return () => disconnectSocket();
   }, []);
 
-  const items = NAV.filter((i) => !i.roles || (user && i.roles.includes(user.role)));
-
   const handleLogout = async () => {
     await logout.mutateAsync();
     navigate('/login');
   };
 
+  const closeSidebar = () => setOpen(false);
+
   return (
     <div className="min-h-screen bg-[hsl(var(--shell))] font-dashboard">
-      {/* Sidebar */}
       <aside
         className={cn(
-          'fixed z-40 flex w-60 flex-col bg-[hsl(var(--sidebar))] shadow-lg transition-transform',
-          'inset-y-0 left-0 lg:inset-y-auto lg:left-4 lg:top-4 lg:bottom-4 lg:rounded-2xl',
+          'app-sidebar',
           open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         )}
       >
-        <div className="flex h-14 shrink-0 items-center justify-between px-4 lg:rounded-t-2xl">
-          <Link to="/dashboard">
+        <div className="app-sidebar-header">
+          <Link to="/dashboard" onClick={closeSidebar} className="app-sidebar-brand">
             <Logo />
           </Link>
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(false)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="app-sidebar-close lg:hidden"
+            onClick={closeSidebar}
+          >
             <X className="h-5 w-5" />
           </Button>
         </div>
 
-        <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 py-3">
-          {items.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/admin'}
-              onClick={() => setOpen(false)}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white',
-                )
-              }
-            >
-              <item.icon className="h-4 w-4 shrink-0" />
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+        <SidebarNav sections={NAV_SECTIONS} role={user?.role} onNavigate={closeSidebar} />
 
-        <div className="shrink-0 p-2.5 lg:rounded-b-2xl">
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
-          >
-            <LogOut className="h-4 w-4" />
+        <div className="app-sidebar-footer">
+          {user && (
+            <div className="app-sidebar-user">
+              <Avatar
+                first={user.firstName}
+                last={user.lastName}
+                src={user.avatar}
+                className="h-9 w-9"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-foreground">
+                  {user.firstName} {user.lastName}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">{titleCase(user.role)}</p>
+              </div>
+            </div>
+          )}
+          <button type="button" onClick={handleLogout} className="app-sidebar-signout">
+            <LogOut className="h-4 w-4 shrink-0" />
             Sign out
           </button>
         </div>
       </aside>
 
       {open && (
-        <div className="fixed inset-0 z-30 bg-slate-900/40 lg:hidden" onClick={() => setOpen(false)} />
+        <div className="app-sidebar-backdrop lg:hidden" onClick={closeSidebar} aria-hidden />
       )}
 
-      {/* Main */}
-      <div className="flex min-h-screen flex-col lg:pl-[calc(15rem+2rem)]">
-        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between bg-[hsl(var(--shell))] px-4 sm:px-5 lg:px-6">
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(true)}>
+      <div className="app-main">
+        <header className="app-topbar">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            onClick={() => setOpen(true)}
+          >
             <Menu className="h-5 w-5" />
           </Button>
           <div className="hidden flex-1 lg:block" />
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
             <NotificationBell />
             <ThemeToggle />
-            <div className="flex items-center gap-2.5 pl-1">
+            <div className="hidden items-center gap-2.5 sm:flex">
               <div className="text-right">
-                <p className="text-xs font-semibold leading-tight text-slate-900 dark:text-white">
+                <p className="text-xs font-semibold leading-tight text-foreground">
                   {user?.firstName} {user?.lastName}
                 </p>
-                <p className="text-[11px] leading-tight text-slate-500 dark:text-slate-400">
+                <p className="text-[11px] leading-tight text-muted-foreground">
                   {titleCase(user?.role)}
                 </p>
               </div>
-              <Avatar first={user?.firstName} last={user?.lastName} src={user?.avatar} className="h-8 w-8" />
+              <Avatar
+                first={user?.firstName}
+                last={user?.lastName}
+                src={user?.avatar}
+                className="h-8 w-8"
+              />
             </div>
           </div>
         </header>
 
-        <main className="flex-1 px-4 pb-5 pt-1 sm:px-5 sm:pb-6 lg:px-6 lg:pb-6">
+        <main className="app-main-content">
           <PageFlyIn>
             <Outlet />
           </PageFlyIn>
